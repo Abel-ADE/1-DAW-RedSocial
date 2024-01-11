@@ -122,6 +122,7 @@ public class InitMenuController {
         ProfileDB.saveFrienshipRequest(abel, carlos);
         ProfileDB.saveFriendship(marcos, carlos);
         ProfileDB.saveFriendship(marcos, abel);
+        
 
         // Obtener la fecha actual en milisegundos
         long currentTime = System.currentTimeMillis();
@@ -136,6 +137,8 @@ public class InitMenuController {
         PostDB.save(postCarlos);
 
         initMenuController.init();
+        
+        
 
     }
 }
