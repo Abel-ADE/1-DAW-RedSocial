@@ -17,7 +17,7 @@ public class PostDB {
      * @param post unha publicación.
      */
     public static void save(Post post) {
-        post.getProfile().getPosts().add(post);
+        post.getProfile().getPosts().add(0, post);
     }
 
     /**
