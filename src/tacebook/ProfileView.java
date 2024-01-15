@@ -21,12 +21,12 @@ public class ProfileView {
     /**
      * Para formatear as datas.
      */
-    private SimpleDateFormat formatter;
+    private final SimpleDateFormat formatter;
 
     /**
      * Mantén a referencia ao obxecto controlador.
      */
-    private ProfileController profileController;
+    private final ProfileController profileController;
 
     /**
      * Método que permite ver o número de publicacións que se mostran na
@@ -71,7 +71,7 @@ public class ProfileView {
                 } else {
                     System.out.println("    " + i + ".O " + formatter.format(profile.getPosts().get(i).getDate()) + " " + profileController.getShownProfile().getName() + " escribiu (" + profile.getPosts().get(i).getProfileLikes().size() + " me gusta):");
                 }
-                
+
                 System.out.println("      " + profile.getPosts().get(i).getText());
 
                 for (Comment comment : profile.getPosts().get(i).getComments()) {
@@ -112,14 +112,12 @@ public class ProfileView {
      * @param profile o perfil actual.
      */
     private void changeStatus(boolean ownProfile, Scanner scanner, Profile profile) {
-
         if (ownProfile) {
             scanner.nextLine();
             System.out.print("Introduce o teu novo estado: ");
             profileController.updateProfileStatus(scanner.nextLine());
         } else {
-            System.out.println("Esta opción só é válida na propia biografía");
-            showProfileMenu(profile);
+            System.out.println("Esta opción só está permitida na túa biografía");
         }
     }
 
@@ -133,10 +131,12 @@ public class ProfileView {
      */
     public void showProfileMenu(Profile profile) {
         Scanner scanner = new Scanner(System.in);
-        showProfileInfo(profileController.getSessionProfile() == profileController.getShownProfile(), profile);
         boolean isOwnProfile = profileController.getSessionProfile() == profileController.getShownProfile();
-        System.out.println();
+        int option;
 
+        showProfileInfo(isOwnProfile, profile);
+
+        System.out.println();
         System.out.println("Escolle unha opción:");
         System.out.println("1. Escribir unha nova publicación");
         System.out.println("2. Comentar unha publicación");
@@ -152,18 +152,20 @@ public class ProfileView {
             System.out.println("10. Eliminar unha mensaxe privada");
             System.out.println("11. Ver publicacións anteriores");
             System.out.println("12. Cambiar o estado");
-            System.out.println("13. Pechar a sesión");
-            System.out.println();
         } else {
 
             System.out.println("4. Volver a miña biografía");
             System.out.println("8. Enviar unha mensaxe privada");
             System.out.println("11. Ver publicacións anteriores");
-            System.out.println("13. Pechar a sesión");
-            System.out.println();
         }
 
-        switch (scanner.nextInt()) {
+        System.out.println("13. Pechar a sesión");
+        System.out.println();
+
+        option = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (option) {
             case 1: //1. Escribir unha nova publicación
                 writeNewPost(scanner, profile);
                 break;
@@ -177,63 +179,36 @@ public class ProfileView {
                 showBiography(isOwnProfile, scanner, profile);
                 break;
             case 5: //5. Enviar unha solicitude de amizade
-                if (isOwnProfile) {
-                    sendFriendshipRequest(isOwnProfile, scanner, profile);
-                } else {
-                    System.out.println("Esta opción só está permitida na túa biografía");
-                    showProfileMenu(profile);
-                }
+                sendFriendshipRequest(isOwnProfile, scanner, profile);
                 break;
             case 6: //6. Aceptar unha solicitude de amizade
-                if (isOwnProfile) {
-                    proccessFriendshipRequest(isOwnProfile, scanner, profile, true);
-                } else {
-                    System.out.println("Esta opción só está permitida na túa biografía");
-                    showProfileMenu(profile);
-                }
+                proccessFriendshipRequest(isOwnProfile, scanner, profile, true);
                 break;
             case 7: //7. Rexeitar unha solicitude de amizade
-                if (isOwnProfile) {
-                    proccessFriendshipRequest(isOwnProfile, scanner, profile, false);
-                } else {
-                    System.out.println("Esta opción só está permitida na túa biografía");
-                    showProfileMenu(profile);
-                }
+                proccessFriendshipRequest(isOwnProfile, scanner, profile, false);
                 break;
             case 8: //8. Enviar unha mensaxe privada a un amigo
                 sendPrivateMessage(isOwnProfile, scanner, profile);
                 break;
             case 9: //9. Ler unha mensaxe privada
-                if (isOwnProfile) {
-                    readPrivateMessage(isOwnProfile, scanner, profile);
-                } else {
-                    System.out.println("Esta opción só está permitida na túa biografía");
-                    showProfileMenu(profile);
-                }
+                readPrivateMessage(isOwnProfile, scanner, profile);
                 break;
             case 10: //10. Eliminar unha mensaxe privada
-                if (isOwnProfile) {
-                    deletePrivateMessage(isOwnProfile, scanner, profile);
-                } else {
-                    System.out.println("Esta opción só está permitida na túa biografía");
-                    showProfileMenu(profile);
-                }
+                deletePrivateMessage(isOwnProfile, scanner, profile);
                 break;
             case 11: //11. Ver publicacións anteriores
                 showOldPosts(scanner, profile);
                 break;
-            case 12: //12. Cambiar o estado
-                if (isOwnProfile) {
-                    changeStatus(true, scanner, profile);
-                    showProfileMenu(profile);
-                } else {
-                    System.out.println("Esta opción só está permitida na túa biografía");
-                    showProfileMenu(profile);
-                }
+            case 12: //12. Cambiar o estado            
+                changeStatus(true, scanner, profile);
                 break;
             case 13: //13. Pechar a sesión
                 //De momento non facemos nada
                 break;
+        }
+
+        if (option != 13) {
+            showProfileMenu(profile);
         }
     }
 
@@ -271,7 +246,6 @@ public class ProfileView {
      */
     private void writeNewPost(Scanner scanner, Profile profile) {
         System.out.println("Dame o texto da publicación:");
-        scanner.nextLine();
         String text = scanner.nextLine();
         profileController.newPost(text, profile);
     }
@@ -337,29 +311,31 @@ public class ProfileView {
      * @param profile
      */
     private void sendFriendshipRequest(boolean ownProfile, Scanner scanner, Profile profile) {
-        System.out.println("Dame o nome dun perfil:");
-        scanner.nextLine();
-        String nameProfile = scanner.nextLine();
+        if (ownProfile) {
 
-        if (ProfileDB.findByName(nameProfile, 0) != null) {
+            System.out.println("Dame o nome dun perfil:");
+            scanner.nextLine();
+            String nameProfile = scanner.nextLine();
 
-            if (profile.getFriendshipRequests().contains(ProfileDB.findByName(nameProfile, 0))) {
-                System.out.println("Xa tes unha solicitude de amizade de " + nameProfile + "!");
-            } else if (ProfileDB.findByName(nameProfile, 0).getFriendshipRequests().contains(profile)) {
-                System.out.println("Xa tes unha solicitude de amizade para " + nameProfile + "!");
-            } else if (profile.getFriends().contains(ProfileDB.findByName(nameProfile, 0))) {
-                System.out.println("Xa tes amizade con " + nameProfile + "!");
-            } else if (profile.getName().equals(ProfileDB.findByName(nameProfile, 0).getName())) {
-                System.out.println("Non se pode establecer amizade contigo mesmo!");
+            if (ProfileDB.findByName(nameProfile, 0) != null) {
+
+                if (profile.getFriendshipRequests().contains(ProfileDB.findByName(nameProfile, 0))) {
+                    System.out.println("Xa tes unha solicitude de amizade de " + nameProfile + "!");
+                } else if (ProfileDB.findByName(nameProfile, 0).getFriendshipRequests().contains(profile)) {
+                    System.out.println("Xa tes unha solicitude de amizade para " + nameProfile + "!");
+                } else if (profile.getFriends().contains(ProfileDB.findByName(nameProfile, 0))) {
+                    System.out.println("Xa tes amizade con " + nameProfile + "!");
+                } else if (profile.getName().equals(ProfileDB.findByName(nameProfile, 0).getName())) {
+                    System.out.println("Non se pode establecer amizade contigo mesmo!");
+                } else {
+                    profileController.newFriendshipRequest(nameProfile);
+                }
             } else {
-                profileController.newFriendshipRequest(nameProfile);
+                System.out.println("Non se atopou un perfil con ese nome!");
             }
-
         } else {
-            System.out.println("Non se atopou un perfil con ese nome!");
+            System.out.println("Esta opción só está permitida na túa biografía");
         }
-
-        showProfileMenu(profile);
     }
 
     /**
@@ -374,19 +350,24 @@ public class ProfileView {
      * non.
      */
     private void proccessFriendshipRequest(boolean ownProfile, Scanner scanner, Profile profile, boolean accept) {
-        if (!profile.getFriendshipRequests().isEmpty()) {
-            System.out.println("Dame o número da solicitude de amizade:");
-            int numberFriendshipRequest = scanner.nextInt();
-            scanner.nextLine();
-            if (accept) {
-                profileController.acceptFriendshipRequest(profile.getFriendshipRequests().get(numberFriendshipRequest));
-            } else {
-                profileController.rejectFriendshipRequest(profile.getFriendshipRequests().get(numberFriendshipRequest));
-            }
-        } else {
-            System.out.println("Non hai solicitudes de amizade pendentes!!");
-        }
+        if (ownProfile) {
 
+            if (!profile.getFriendshipRequests().isEmpty()) {
+                System.out.println("Dame o número da solicitude de amizade:");
+                int numberFriendshipRequest = scanner.nextInt();
+                scanner.nextLine();
+                if (accept) {
+                    profileController.acceptFriendshipRequest(profile.getFriendshipRequests().get(numberFriendshipRequest));
+                } else {
+                    profileController.rejectFriendshipRequest(profile.getFriendshipRequests().get(numberFriendshipRequest));
+                }
+            } else {
+                System.out.println("Non hai solicitudes de amizade pendentes!!");
+            }
+
+        } else {
+            System.out.println("Esta opción só está permitida na túa biografía");
+        }
     }
 
     /**
@@ -431,53 +412,57 @@ public class ProfileView {
      * @param profile o perfil da sesión.
      */
     private void readPrivateMessage(boolean ownProfile, Scanner scanner, Profile profile) {
-        if (!profile.getMessages().isEmpty()) {
+        if (ownProfile) {
 
-            //Pide seleccionar a mensaxe para ler
-            System.out.println("Selecciona unha mensaxe:");
-            int numberMessage = scanner.nextInt();
-            scanner.nextLine();
-            System.out.println("");
+            if (!profile.getMessages().isEmpty()) {
 
-            //Mostra a mensaxe completa
-            System.out.println("Mensaxe privada");
-            System.out.println("De: " + profile.getMessages().get(numberMessage).getSourceProfile().getName());
-            System.out.println("Data: " + formatter.format(profile.getMessages().get(numberMessage).getDate()));
-            System.out.println("Texto:");
-            System.out.println(profile.getMessages().get(numberMessage).getText());
-            System.out.println("");
+                //Pide seleccionar a mensaxe para ler
+                System.out.println("Selecciona unha mensaxe:");
+                int numberMessage = scanner.nextInt();
+                scanner.nextLine();
+                System.out.println("");
 
-            //Marca a mensaxe como leida
-            profile.getMessages().get(numberMessage).setRead(true);
+                //Mostra a mensaxe completa
+                System.out.println("Mensaxe privada");
+                System.out.println("De: " + profile.getMessages().get(numberMessage).getSourceProfile().getName());
+                System.out.println("Data: " + formatter.format(profile.getMessages().get(numberMessage).getDate()));
+                System.out.println("Texto:");
+                System.out.println(profile.getMessages().get(numberMessage).getText());
+                System.out.println("");
 
-            //Pide unha opción a escoller
-            System.out.println("Escolle unha opción:");
-            System.out.println("1 - Responder a mensaxe");
-            System.out.println("2 - Eliminar a mensaxe");
-            System.out.println("3 - Volver a biografía");
-            int action = scanner.nextInt();
-            scanner.nextLine();
+                //Marca a mensaxe como leida
+                profile.getMessages().get(numberMessage).setRead(true);
 
-            //Ejecuta a acción escollida polo usuario
-            switch (action) {
-                case 1:
-                    System.out.println("Dame o texto do mensaxe a enviar:");
-                    String text = scanner.nextLine();
-                    profileController.replyMessage(profile.getMessages().get(numberMessage), text);
-                    break;
-                case 2:
-                    profileController.deleteMessage(profile.getMessages().get(numberMessage));
-                    break;
-                case 3:
-                    profile.getMessages().get(numberMessage).setRead(true);
-                    break;
+                //Pide unha opción a escoller
+                System.out.println("Escolle unha opción:");
+                System.out.println("1 - Responder a mensaxe");
+                System.out.println("2 - Eliminar a mensaxe");
+                System.out.println("3 - Volver a biografía");
+                int action = scanner.nextInt();
+                scanner.nextLine();
+
+                //Ejecuta a acción escollida polo usuario
+                switch (action) {
+                    case 1:
+                        System.out.println("Dame o texto do mensaxe a enviar:");
+                        String text = scanner.nextLine();
+                        profileController.replyMessage(profile.getMessages().get(numberMessage), text);
+                        break;
+                    case 2:
+                        profileController.deleteMessage(profile.getMessages().get(numberMessage));
+                        break;
+                    case 3:
+                        profile.getMessages().get(numberMessage).setRead(true);
+                        break;
+                }
+
+            } else {
+                System.out.println("Non tes mensaxes!!");
             }
 
         } else {
-            System.out.println("Non tes mensaxes!!");
+            System.out.println("Esta opción só está permitida na túa biografía");
         }
-        //Devuelve al menú del perfil
-        showProfileMenu(profile);
     }
 
     /**
@@ -489,18 +474,20 @@ public class ProfileView {
      * @param profile o perfil da sesión.
      */
     private void deletePrivateMessage(boolean ownProfile, Scanner scanner, Profile profile) {
-        if (!profile.getMessages().isEmpty()) {
+        if (ownProfile) {
+            if (!profile.getMessages().isEmpty()) {
 
-            System.out.println("Selecciona unha mensaxe:");
-            int numberMessage = scanner.nextInt();
-            scanner.nextLine();
+                System.out.println("Selecciona unha mensaxe:");
+                int numberMessage = scanner.nextInt();
+                scanner.nextLine();
 
-            profileController.deleteMessage(profile.getMessages().get(numberMessage));
+                profileController.deleteMessage(profile.getMessages().get(numberMessage));
+            } else {
+                System.out.println("Non tes mensaxes!!");
+            }
         } else {
-            System.out.println("Non tes mensaxes!!");
+            System.out.println("Esta opción só está permitida na túa biografía");
         }
-        //Devuelve al menú del perfil
-        showProfileMenu(profile);
     }
 
     /**

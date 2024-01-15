@@ -13,7 +13,7 @@ import java.util.Date;
  */
 public class ProfileController {
 
-    private ProfileView profileView;
+    private final ProfileView profileView;
     private Profile sessionProfile;
     private Profile shownProfile;
 
@@ -60,9 +60,7 @@ public class ProfileController {
      * @return o número de publicacións a mostrar.
      */
     public int getPostsShowed() {
-
         return profileView.getPostsShowed();
-
     }
 
     /**
