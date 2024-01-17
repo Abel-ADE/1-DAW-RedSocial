@@ -62,43 +62,98 @@ public class ProfileView {
         System.out.println("Estado actual: " + profile.getStatus());
 
         System.out.println("A túa biografía (" + postsShowed + " últimas publicacións):");
-        if (!profile.getPosts().isEmpty()) {
 
-            for (int i = 0; i < profile.getPosts().size() && i < postsShowed; i++) {
+        //Mostro as publicacións
+        for (int i = 0; i < profile.getPosts().size() && i < postsShowed && !profile.getPosts().isEmpty(); i++) {
 
-                if (ownProfile) {
-                    System.out.println("    " + i + ".O " + formatter.format(profile.getPosts().get(i).getDate()) + " ti escribiches (" + profile.getPosts().get(i).getProfileLikes().size() + " me gusta):");
-                } else {
-                    System.out.println("    " + i + ".O " + formatter.format(profile.getPosts().get(i).getDate()) + " " + profileController.getShownProfile().getName() + " escribiu (" + profile.getPosts().get(i).getProfileLikes().size() + " me gusta):");
-                }
+            Post post = profile.getPosts().get(i);
 
-                System.out.println("      " + profile.getPosts().get(i).getText());
+            System.out.print("    ");
+            System.out.print(i);
+            System.out.print(".O ");
+            System.out.print(formatter.format(post.getDate()));
 
-                for (Comment comment : profile.getPosts().get(i).getComments()) {
-                    System.out.println("        - " + comment.getText() + " - " + comment.getSourceProfile().getName() + " - " + formatter.format(comment.getDate()));
-                }
+            if (post.getAuthor().getName().equals(profileController.getSessionProfile().getName())) {
+                System.out.print(" ti escribiches (");
+            } else {
+                System.out.print(" ");
+                System.out.print(post.getAuthor().getName());
+                System.out.print(" escribiu (");
+            }
+
+            System.out.print(post.getProfileLikes().size());
+            System.out.println(" me gusta):");
+
+            System.out.println("      " + post.getText());
+
+            //Mostro os comentarios de cada publicación
+            for (Comment comment : post.getComments()) {
+                System.out.print("        - ");
+                System.out.print(comment.getText());
+                System.out.print(" - ");
+                System.out.print(comment.getSourceProfile().getName());
+                System.out.print(" - ");
+                System.out.println(formatter.format(comment.getDate()));
             }
         }
 
+        //Mostro as listas de amigos
         System.out.println("Lista de amigos:");
-        if (profile.getFriends().size() >= 1) {
-            for (int i = 0; i < profile.getFriends().size(); i++) {
-                System.out.println("    " + i + ". " + profile.getFriends().get(i).getName() + " - " + profile.getFriends().get(i).getStatus());
-            }
+
+        for (int i = 0; i < profile.getFriends().size() && !profile.getFriends().isEmpty(); i++) {
+            //Obteño o perfil da lista de amigos
+            Profile prof = profile.getFriends().get(i);
+
+            //Mostro os amigos
+            System.out.print("    ");
+            System.out.print(i);
+            System.out.print(". ");
+            System.out.print(prof.getName());
+            System.out.print(" - ");
+            System.out.println(prof.getStatus());
         }
 
+        //Mostro as solicitudes de amizade
         if (!profile.getFriendshipRequests().isEmpty()) {
             System.out.println("Tes solicitudes de amizade dos seguintes perfís:");
+
             for (int i = 0; i < profile.getFriendshipRequests().size(); i++) {
-                System.out.println("    " + i + ". " + profile.getFriendshipRequests().get(i).getName() + " quere establecer amizade contigo.");
+                Profile prof = profile.getFriendshipRequests().get(i);
+
+                System.out.print("    ");
+                System.out.print(i);
+                System.out.print(". ");
+                System.out.print(prof.getName());
+                System.out.println(" quere establecer amizade contigo.");
             }
         }
 
+        //Mostro as mensaxes
         if (!profile.getMessages().isEmpty()) {
-            System.out.println("Tes " + profile.getMessages().size() + " mensaxes sen ler!!");
+
+            int notRead = 0;
+
+            for (Message message : profile.getMessages()) {
+                if (!message.isRead()) {
+                    notRead++;
+                }
+            }
+
+            System.out.println(notRead > 0 ? "Tes " + notRead + " mensaxes sen ler!!" : "Mensaxes privados:");
+            
             for (int i = 0; i < profile.getMessages().size(); i++) {
 
-                System.out.println("    *" + i + ". De " + profile.getMessages().get(i).getDestProfile().getName() + "(" + formatter.format(profile.getMessages().get(i).getDate()) + ") " + profile.getMessages().get(i).getText().substring(0, 10) + "...");
+                Message mess = profile.getMessages().get(i);
+
+                System.out.print(mess.isRead() ? "    " : "    *");
+                System.out.print(i);
+                System.out.print(". De ");
+                System.out.print(mess.getDestProfile().getName());
+                System.out.print("(");
+                System.out.print(formatter.format(mess.getDate()));
+                System.out.print(") ");
+                System.out.print(mess.getText().substring(0, 10));
+                System.out.println("...");
             }
         }
 
@@ -143,6 +198,7 @@ public class ProfileView {
         System.out.println("3. Facer me gusta sobre unha publicación");
 
         if (isOwnProfile) {
+            
             System.out.println("4. Ver a biografía dun amigo");
             System.out.println("5. Enviar unha solicitude de amizade");
             System.out.println("6. Aceptar unha solicitude de amizade");
@@ -153,17 +209,21 @@ public class ProfileView {
             System.out.println("11. Ver publicacións anteriores");
             System.out.println("12. Cambiar o estado");
         } else {
-
+            
             System.out.println("4. Volver a miña biografía");
             System.out.println("8. Enviar unha mensaxe privada");
             System.out.println("11. Ver publicacións anteriores");
         }
 
         System.out.println("13. Pechar a sesión");
-        System.out.println();
 
-        option = scanner.nextInt();
-        scanner.nextLine();
+        do {
+            option = scanner.nextInt();
+            scanner.nextLine();
+            if (option <= 0 || option > 13) {
+                System.out.println("Debes introducir un número entre 0 e 13");
+            }
+        } while (option <= 0 || option > 13);
 
         switch (option) {
             case 1: //1. Escribir unha nova publicación
@@ -229,10 +289,10 @@ public class ProfileView {
             System.out.println(text);
             option = scanner.nextInt();
             scanner.nextLine();
-            if (option <= 0 || option >= maxNumber) {
-                System.out.println("Debes introducir un número entre 1 e " + maxNumber);
+            if (option < 0 || option >= maxNumber) {
+                System.out.println("Debes introducir un número entre 0 e " + (maxNumber - 1));
             }
-        } while (option <= 0 || option >= maxNumber);
+        } while (option < 0 || option >= maxNumber);
 
         return option;
     }
@@ -258,9 +318,8 @@ public class ProfileView {
      * @param profile o perfil que crea o comentario.
      */
     private void commentPost(Scanner scanner, Profile profile) {
-        System.out.println("Selecciona unha publicación:");
-        int numberPost = scanner.nextInt();
-        scanner.nextLine();
+
+        int numberPost = selectElement("Selecciona unha publicación:", profile.getPosts().size(), scanner);
         System.out.println("Introduce o texto do comentario:");
         String commentText = scanner.nextLine();
         profileController.newComment(profile.getPosts().get(numberPost), commentText);
@@ -274,9 +333,7 @@ public class ProfileView {
      * @param profile o perfil que da like sobre a publicación.
      */
     private void addLike(Scanner scanner, Profile profile) {
-        System.out.println("Selecciona unha publicación:");
-        int numberPost = scanner.nextInt();
-        scanner.nextLine();
+        int numberPost = selectElement("Selecciona unha publicación:", profile.getPosts().size(), scanner);
         profileController.newLike(profile.getPosts().get(numberPost));
     }
 
@@ -292,9 +349,7 @@ public class ProfileView {
     private void showBiography(boolean ownProfile, Scanner scanner, Profile profile) {
 
         if (ownProfile) {
-            System.out.println("Selecciona unha amizade:");
-            int numberProfile = scanner.nextInt();
-            scanner.nextLine();
+            int numberProfile = selectElement("Selecciona unha amizade:", profile.getFriends().size(), scanner);
             profileController.setShownProfile(profile.getFriends().get(numberProfile));
         } else {
             profileController.setShownProfile(profileController.getSessionProfile());
@@ -353,9 +408,7 @@ public class ProfileView {
         if (ownProfile) {
 
             if (!profile.getFriendshipRequests().isEmpty()) {
-                System.out.println("Dame o número da solicitude de amizade:");
-                int numberFriendshipRequest = scanner.nextInt();
-                scanner.nextLine();
+                int numberFriendshipRequest = selectElement("Dame o número da solicitude de amizade:", profile.getFriendshipRequests().size(), scanner);
                 if (accept) {
                     profileController.acceptFriendshipRequest(profile.getFriendshipRequests().get(numberFriendshipRequest));
                 } else {
@@ -383,9 +436,7 @@ public class ProfileView {
     private void sendPrivateMessage(boolean ownProfile, Scanner scanner, Profile profile) {
 
         if (ownProfile) {
-            System.out.println("Selecciona un amigo:");
-            int numberFriend = scanner.nextInt();
-            scanner.nextLine();
+            int numberFriend = selectElement("Selecciona un amigo:", profile.getFriends().size(), scanner);
             System.out.println("Dame o texto da mensaxe:");
             String message = scanner.nextLine();
             if (profile.getFriends().isEmpty()) {
@@ -417,10 +468,7 @@ public class ProfileView {
             if (!profile.getMessages().isEmpty()) {
 
                 //Pide seleccionar a mensaxe para ler
-                System.out.println("Selecciona unha mensaxe:");
-                int numberMessage = scanner.nextInt();
-                scanner.nextLine();
-                System.out.println("");
+                int numberMessage = selectElement("Selecciona unha mensaxe:", profile.getMessages().size(), scanner);
 
                 //Mostra a mensaxe completa
                 System.out.println("Mensaxe privada");
@@ -459,7 +507,6 @@ public class ProfileView {
             } else {
                 System.out.println("Non tes mensaxes!!");
             }
-
         } else {
             System.out.println("Esta opción só está permitida na túa biografía");
         }
@@ -476,11 +523,7 @@ public class ProfileView {
     private void deletePrivateMessage(boolean ownProfile, Scanner scanner, Profile profile) {
         if (ownProfile) {
             if (!profile.getMessages().isEmpty()) {
-
-                System.out.println("Selecciona unha mensaxe:");
-                int numberMessage = scanner.nextInt();
-                scanner.nextLine();
-
+                int numberMessage = selectElement("Selecciona unha mensaxe:", profile.getMessages().size(), scanner);
                 profileController.deleteMessage(profile.getMessages().get(numberMessage));
             } else {
                 System.out.println("Non tes mensaxes!!");
@@ -498,10 +541,7 @@ public class ProfileView {
      * @param profile o perfil da sesión.
      */
     private void showOldPosts(Scanner scanner, Profile profile) {
-        System.out.println("¿Cántas publicacións desexas ver?");
-        postsShowed = scanner.nextInt();
-        scanner.nextLine();
-
+        postsShowed = selectElement("¿Cántas publicacións desexas ver?", profile.getPosts().size(), scanner);
         profileController.reloadProfile();
     }
 

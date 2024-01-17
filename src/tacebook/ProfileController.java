@@ -1,4 +1,4 @@
-/*
+ /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
@@ -49,8 +49,7 @@ public class ProfileController {
      * Constructor da clase.
      */
     public ProfileController() {
-        ProfileView profileView = new ProfileView(this);
-        this.profileView = profileView;
+        this.profileView = new ProfileView(this);
     }
 
     /**
@@ -68,8 +67,8 @@ public class ProfileController {
      * menú do perfil para el.
      */
     public void reloadProfile() {
-        Profile profile = ProfileDB.findByName(shownProfile.getName(), 0);
-        profileView.showProfileMenu(profile);
+        shownProfile = ProfileDB.findByName(shownProfile.getName(), 0);
+        profileView.showProfileMenu(shownProfile);
     }
 
     /**
@@ -209,6 +208,7 @@ public class ProfileController {
      */
     public void deleteMessage(Message message) {
         MessageDB.remove(message);
+        reloadProfile();
     }
 
     /**
@@ -231,6 +231,7 @@ public class ProfileController {
     public void replyMessage(Message message, String text) {
         markMessageAsRead(message);
         newMessage(sessionProfile, text);
+        reloadProfile();
     }
 
 }
