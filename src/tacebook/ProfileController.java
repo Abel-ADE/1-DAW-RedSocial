@@ -1,4 +1,4 @@
- /*
+/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
@@ -92,6 +92,7 @@ public class ProfileController {
     public void updateProfileStatus(String newStatus) {
         sessionProfile.setStatus(newStatus);
         ProfileDB.update(sessionProfile);
+        reloadProfile();
     }
 
     /**
@@ -137,9 +138,9 @@ public class ProfileController {
      */
     public void newLike(Post post) {
 
-         if (sessionProfile != post.getAuthor() && !post.getProfileLikes().contains(sessionProfile)) {
+        if (sessionProfile != post.getAuthor() && !post.getProfileLikes().contains(sessionProfile)) {
             PostDB.saveLike(post, sessionProfile);
-        }else{
+        } else {
             profileView.showCannotLikeOwnPostMessage();
         }
 
@@ -153,11 +154,25 @@ public class ProfileController {
      * amizade.
      */
     public void newFriendshipRequest(String profileName) {
-       if (TacebookDB.getProfiles().contains(ProfileDB.findByName(profileName, 0))) {
-            if (!ProfileDB.findByName(profileName, 0).getFriendshipRequests().contains(sessionProfile) && !sessionProfile.getFriendshipRequests().contains(ProfileDB.findByName(profileName, 0))) {
-                ProfileDB.saveFrienshipRequest(ProfileDB.findByName(profileName, 0), sessionProfile);
+        Profile profile = ProfileDB.findByName(profileName, 0);
+
+        if (profile != null) {
+
+            if (sessionProfile.getFriendshipRequests().contains(profile)) {
+                profileView.showExistsFrienshipRequestMessage(profileName);
+            } else if (profile.getFriendshipRequests().contains(sessionProfile)) {
+                profileView.showDuplicateFrienshipRequestMessage(profileName);
+            } else if (sessionProfile.getFriends().contains(profile)) {
+                profileView.showIsAlreadyFriendMessage(profileName);
+            } else if (profile.equals(sessionProfile)) {
+                profileView.showNotFriendshipYourself();
+            } else {
+                ProfileDB.saveFrienshipRequest(profile, sessionProfile);
             }
+        } else {
+            profileView.showProfileNotFoundMessage();
         }
+
         reloadProfile();
     }
 

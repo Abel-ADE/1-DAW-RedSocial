@@ -129,7 +129,7 @@ public class ProfileView {
         }
 
         //Mostro as mensaxes
-        if (!profile.getMessages().isEmpty()) {
+        if (!profile.getMessages().isEmpty() && ownProfile) {
 
             int notRead = 0;
 
@@ -140,12 +140,12 @@ public class ProfileView {
             }
 
             System.out.println(notRead > 0 ? "Tes " + notRead + " mensaxes sen ler!!" : "Mensaxes privados:");
-            
+
             for (int i = 0; i < profile.getMessages().size(); i++) {
 
                 Message mess = profile.getMessages().get(i);
 
-                System.out.print(mess.isRead() ? "    " : "    *");
+                System.out.print(mess.isRead() ? "" : "*");
                 System.out.print(i);
                 System.out.print(". De ");
                 System.out.print(mess.getDestProfile().getName());
@@ -168,7 +168,6 @@ public class ProfileView {
      */
     private void changeStatus(boolean ownProfile, Scanner scanner, Profile profile) {
         if (ownProfile) {
-            scanner.nextLine();
             System.out.print("Introduce o teu novo estado: ");
             profileController.updateProfileStatus(scanner.nextLine());
         } else {
@@ -198,7 +197,7 @@ public class ProfileView {
         System.out.println("3. Facer me gusta sobre unha publicación");
 
         if (isOwnProfile) {
-            
+
             System.out.println("4. Ver a biografía dun amigo");
             System.out.println("5. Enviar unha solicitude de amizade");
             System.out.println("6. Aceptar unha solicitude de amizade");
@@ -209,7 +208,7 @@ public class ProfileView {
             System.out.println("11. Ver publicacións anteriores");
             System.out.println("12. Cambiar o estado");
         } else {
-            
+
             System.out.println("4. Volver a miña biografía");
             System.out.println("8. Enviar unha mensaxe privada");
             System.out.println("11. Ver publicacións anteriores");
@@ -266,10 +265,7 @@ public class ProfileView {
                 //De momento non facemos nada
                 break;
         }
-
-        if (option != 13) {
-            showProfileMenu(profile);
-        }
+        System.out.println("");
     }
 
     /**
@@ -289,10 +285,10 @@ public class ProfileView {
             System.out.println(text);
             option = scanner.nextInt();
             scanner.nextLine();
-            if (option < 0 || option >= maxNumber) {
-                System.out.println("Debes introducir un número entre 0 e " + (maxNumber - 1));
+            if (option < 0 || option > maxNumber) {
+                System.out.println("Debes introducir un número menor que " + (maxNumber));
             }
-        } while (option < 0 || option >= maxNumber);
+        } while (option < 0 || option > maxNumber);
 
         return option;
     }
@@ -367,27 +363,9 @@ public class ProfileView {
      */
     private void sendFriendshipRequest(boolean ownProfile, Scanner scanner, Profile profile) {
         if (ownProfile) {
-
             System.out.println("Dame o nome dun perfil:");
-            scanner.nextLine();
             String nameProfile = scanner.nextLine();
-
-            if (ProfileDB.findByName(nameProfile, 0) != null) {
-
-                if (profile.getFriendshipRequests().contains(ProfileDB.findByName(nameProfile, 0))) {
-                    System.out.println("Xa tes unha solicitude de amizade de " + nameProfile + "!");
-                } else if (ProfileDB.findByName(nameProfile, 0).getFriendshipRequests().contains(profile)) {
-                    System.out.println("Xa tes unha solicitude de amizade para " + nameProfile + "!");
-                } else if (profile.getFriends().contains(ProfileDB.findByName(nameProfile, 0))) {
-                    System.out.println("Xa tes amizade con " + nameProfile + "!");
-                } else if (profile.getName().equals(ProfileDB.findByName(nameProfile, 0).getName())) {
-                    System.out.println("Non se pode establecer amizade contigo mesmo!");
-                } else {
-                    profileController.newFriendshipRequest(nameProfile);
-                }
-            } else {
-                System.out.println("Non se atopou un perfil con ese nome!");
-            }
+            profileController.newFriendshipRequest(nameProfile);
         } else {
             System.out.println("Esta opción só está permitida na túa biografía");
         }
@@ -445,7 +423,6 @@ public class ProfileView {
                 profileController.newMessage(profile.getFriends().get(numberFriend), message);
             }
         } else {
-            scanner.nextLine();
             System.out.println("Dame o texto da mensaxe:");
             String message = scanner.nextLine();
             profileController.newMessage(profileController.getShownProfile(), message);
@@ -469,17 +446,20 @@ public class ProfileView {
 
                 //Pide seleccionar a mensaxe para ler
                 int numberMessage = selectElement("Selecciona unha mensaxe:", profile.getMessages().size(), scanner);
+                
+                //Gardo a mensaxe nunha variable local para poder usar no método
+                Message message = profile.getMessages().get(numberMessage);
 
                 //Mostra a mensaxe completa
                 System.out.println("Mensaxe privada");
-                System.out.println("De: " + profile.getMessages().get(numberMessage).getSourceProfile().getName());
-                System.out.println("Data: " + formatter.format(profile.getMessages().get(numberMessage).getDate()));
+                System.out.println("De: " + message.getSourceProfile().getName());
+                System.out.println("Data: " + formatter.format(message.getDate()));
                 System.out.println("Texto:");
-                System.out.println(profile.getMessages().get(numberMessage).getText());
+                System.out.println(message.getText());
                 System.out.println("");
 
                 //Marca a mensaxe como leida
-                profile.getMessages().get(numberMessage).setRead(true);
+                message.setRead(true);
 
                 //Pide unha opción a escoller
                 System.out.println("Escolle unha opción:");
@@ -494,13 +474,13 @@ public class ProfileView {
                     case 1:
                         System.out.println("Dame o texto do mensaxe a enviar:");
                         String text = scanner.nextLine();
-                        profileController.replyMessage(profile.getMessages().get(numberMessage), text);
+                        profileController.replyMessage(message, text);
                         break;
                     case 2:
-                        profileController.deleteMessage(profile.getMessages().get(numberMessage));
+                        profileController.deleteMessage(message);
                         break;
                     case 3:
-                        profile.getMessages().get(numberMessage).setRead(true);
+                        message.setRead(true);
                         break;
                 }
 
@@ -580,13 +560,17 @@ public class ProfileView {
         System.out.println("Xa tes amizade con " + profileName);
     }
 
+    public void showNotFriendshipYourself() {
+        System.out.println("Non se pode establecer amizade contigo mesmo!");
+    }
+
     /**
      * Informa de que ese perfil xa ten unha solicitude de amizade contigo.
      *
      * @param profileName o nome do perfil que se pretendía establecer amizade.
      */
     public void showExistsFrienshipRequestMessage(String profileName) {
-        System.out.println(profileName + " xa ten amizade contigo");
+        System.out.println(profileName + " xa che enviou unha solicitude de amizade!");
     }
 
     /**
@@ -595,7 +579,7 @@ public class ProfileView {
      * @param profileName o nome do perfil que se pretendía establecer amizade.
      */
     public void showDuplicateFrienshipRequestMessage(String profileName) {
-        System.out.println("Xa tes unha solicitude de amizade con" + profileName);
+        System.out.println("Xa tes unha solicitude de amizade con " + profileName);
     }
 
 }
