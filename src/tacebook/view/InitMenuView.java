@@ -38,7 +38,7 @@ public class InitMenuView {
      * @return Devolve true se o usuario quere saír da aplicación.
      */
     public boolean showLoginMenu() {
-        Scanner scan = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
 
         System.out.println("Benvid@ a tacebook - A rede social do IES Pazo da Mercé");
         System.out.println("Escolle unha opción:");
@@ -46,15 +46,15 @@ public class InitMenuView {
         System.out.println("2 - Crear un novo perfil");
         System.out.println("3 - Saír da aplicación");
 
-        switch (scan.nextInt()) {
+        switch (readNumber(scanner)) {
             case 1:
-                scan.nextLine();
+                scanner.nextLine();
                 System.out.println();
 
                 System.out.print("Nome do usuario: ");
-                String name = scan.nextLine();
+                String name = scanner.nextLine();
                 System.out.print("Contrasinal: ");
-                String password = scan.nextLine();
+                String password = scanner.nextLine();
 
                 initMenuController.login(name, password);
                 break;
@@ -146,6 +146,7 @@ public class InitMenuView {
             scanner.nextLine();
             return readNumber(scanner);
         }
+        System.out.println();
         
         return number;
     }
