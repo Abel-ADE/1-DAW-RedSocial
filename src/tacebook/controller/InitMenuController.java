@@ -62,7 +62,13 @@ public class InitMenuController {
     public void login(String name, String password) {
 
         ProfileController profileController = new ProfileController();
-        Profile profile = ProfileDB.findByNameAndPassword(name, password, 0);
+        Profile profile = null;
+
+        try {
+            profile = ProfileDB.findByNameAndPassword(name, password, 0);
+        } catch (PersistenceException ex) {
+            proccessPersistenceException(ex);
+        }
 
         if (profile == null) {
             initMenuView.showLoginErrorMessage();
@@ -88,12 +94,26 @@ public class InitMenuController {
      * @param status estado do usuario.
      */
     public void createProfile(String name, String password, String status) {
-        if (ProfileDB.findByName(name, 0) == null) {
+        Profile existProfile = null;
+
+        try {
+            existProfile = ProfileDB.findByName(name, 0);
+        } catch (PersistenceException ex) {
+            proccessPersistenceException(ex);
+        }
+
+        if (existProfile == null) {
 
             ProfileController profileController = new ProfileController();
             Profile profile = new Profile(name, password, status);
 
-            ProfileDB.save(profile);
+            try {
+                ProfileDB.save(profile);
+
+            } catch (PersistenceException ex) {
+                proccessPersistenceException(ex);
+            }
+
             profileController.openSession(profile);
         } else {
             String newName = initMenuView.showNewNameMenu();
