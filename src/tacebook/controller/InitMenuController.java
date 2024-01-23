@@ -2,10 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package tacebook;
+package tacebook.controller;
 
-import java.util.Date;
-import java.util.Scanner;
+import tacebook.view.InitMenuView;
+import tacebook.model.Profile;
+import tacebook.persistence.ProfileDB;
+
 
 /**
  * Esta clase será a que conteña o método "main()" da aplicación.

@@ -2,9 +2,18 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package tacebook;
+package tacebook.controller;
 
 import java.util.Date;
+import tacebook.model.Comment;
+import tacebook.persistence.CommentDB;
+import tacebook.model.Message;
+import tacebook.persistence.MessageDB;
+import tacebook.model.Post;
+import tacebook.persistence.PostDB;
+import tacebook.model.Profile;
+import tacebook.persistence.ProfileDB;
+import tacebook.view.ProfileView;
 
 /**
  * Esta clase controlará as accións do menú principal.

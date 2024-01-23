@@ -2,11 +2,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package tacebook;
+package tacebook.view;
 
 import java.text.SimpleDateFormat;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import tacebook.controller.ProfileController;
+import tacebook.model.Comment;
+import tacebook.model.Message;
+import tacebook.model.Post;
+import tacebook.model.Profile;
 
 /**
  * Encárgase de mostrar as opcións do menú principal.

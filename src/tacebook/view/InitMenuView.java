@@ -2,10 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package tacebook;
+package tacebook.view;
 
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import tacebook.controller.InitMenuController;
 
 /**
  * Encárgase de mostrar as opcións do menú inicial e recoller os datos de
@@ -19,7 +20,7 @@ public class InitMenuView {
     /**
      * Mantén a referencia ao obxecto controlador.
      */
-    private InitMenuController initMenuController;
+    private final InitMenuController initMenuController;
 
     /**
      * Constructor da clase.
