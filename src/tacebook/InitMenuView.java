@@ -4,6 +4,7 @@
  */
 package tacebook;
 
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -124,6 +125,28 @@ public class InitMenuView {
         System.out.print("Dime outro nome: ");
 
         return scan.nextLine();
+    }
+    
+    /**
+     * Este método lerá un dato numérico por teclado.
+     * @param scanner un obxecto de tipo scanner.
+     * @return o número introducido polo usuario.
+     */
+    public static int readNumber(Scanner scanner){
+        int number;
+        
+        try {
+            number = scanner.nextInt();
+            scanner.nextLine();
+            
+        } catch (NoSuchElementException e) {
+            System.err.println("Debes introducir un número!");
+            
+            scanner.nextLine();
+            return readNumber(scanner);
+        }
+        
+        return number;
     }
 
 }

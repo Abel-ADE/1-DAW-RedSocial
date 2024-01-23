@@ -5,6 +5,7 @@
 package tacebook;
 
 import java.text.SimpleDateFormat;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -526,6 +527,28 @@ public class ProfileView {
         profileController.reloadProfile();
     }
 
+    /**
+     * Este método lerá un dato numérico por teclado.
+     * @param scanner un obxecto de tipo scanner.
+     * @return o número introducido polo usuario.
+     */
+    public static int readNumber(Scanner scanner){
+        int number;
+        
+        try {
+            number = scanner.nextInt();
+            scanner.nextLine();
+            
+        } catch (NoSuchElementException e) {
+            System.err.println("Debes introducir un número!");
+            
+            scanner.nextLine();
+            return readNumber(scanner);
+        }
+        
+        return number;
+    }
+    
     //Os métodos que se inclúen a partir de aquí, simplemente mostran mensaxes 
     //por pantalla e chámanse dende o controlador para informar ao usuario de 
     //circunstancias que poden provocar que unha acción non se poida realizar. 

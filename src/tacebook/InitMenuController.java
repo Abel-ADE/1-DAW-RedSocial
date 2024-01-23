@@ -5,6 +5,7 @@
 package tacebook;
 
 import java.util.Date;
+import java.util.Scanner;
 
 /**
  * Esta clase será a que conteña o método "main()" da aplicación.
@@ -102,42 +103,9 @@ public class InitMenuController {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-
+        
         InitMenuController initMenuController = new InitMenuController();
-
-        //Metemos a man datos na aplicación
-        ProfileController abelController = new ProfileController();
-        Profile abel = new Profile("abel", "123", "Programando...");
-        ProfileDB.save(abel);
-
-        ProfileController carlosController = new ProfileController();
-        Profile carlos = new Profile("carlos", "123", "Leendo...");
-        ProfileDB.save(carlos);
-
-        ProfileController marcosController = new ProfileController();
-        Profile marcos = new Profile("marcos", "123", "Xogando...");
-        ProfileDB.save(marcos);        
-        
-        ProfileDB.saveFrienshipRequest(abel, carlos);
-        ProfileDB.saveFriendship(marcos, carlos);
-        ProfileDB.saveFriendship(marcos, abel);
-        
-
-        // Obtener la fecha actual en milisegundos
-        long currentTime = System.currentTimeMillis();
-
-        // Crear un objeto Date
-        Date actualDate = new Date(currentTime);
-
-        Post postAbel = new Post(0, actualDate, "ola, son abel", abel, abel);
-        PostDB.save(postAbel);
-        
-        Post postCarlos = new Post(0, actualDate, "ola, son carlos", carlos, carlos);
-        PostDB.save(postCarlos);
-
         initMenuController.init();
         
-        
-
     }
 }
