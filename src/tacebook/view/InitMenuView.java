@@ -146,5 +146,25 @@ public class InitMenuView {
         
         return number;
     }
+    
+    /**
+     * Mostra a mensaxe de erro ao conectar co almacén de datos.
+     */
+    public void showConnectionErrorMessage(){
+        System.out.println("Erro na conexión co almacén de datos!");
+    }
+    
+    /**
+     * Mostra a mensaxe de erro durante a lectura do almacén de datos.
+     */
+    public void showReadErrorMessage(){
+        System.out.println("Erro na lectura de datos!");
+    }
 
+    /**
+     * Mostra a mensaxe de erro durante a escritura do almacén de datos.
+     */
+    public void showWriteErrorMessage(){
+        System.out.println("Erro na escritura dos datos!");
+    }
 }
