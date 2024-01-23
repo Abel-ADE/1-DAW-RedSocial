@@ -8,6 +8,7 @@ import tacebook.view.InitMenuView;
 import tacebook.model.Profile;
 import tacebook.persistence.PersistenceException;
 import tacebook.persistence.ProfileDB;
+import tacebook.persistence.TacebookDB;
 
 /**
  * Esta clase será a que conteña o método "main()" da aplicación.
@@ -149,6 +150,7 @@ public class InitMenuController {
 
         InitMenuController initMenuController = new InitMenuController();
         initMenuController.init();
+        TacebookDB.close();
 
     }
 }
