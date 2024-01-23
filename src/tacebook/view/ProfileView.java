@@ -154,7 +154,7 @@ public class ProfileView {
                 System.out.print(mess.isRead() ? "" : "*");
                 System.out.print(i);
                 System.out.print(". De ");
-                System.out.print(mess.getDestProfile().getName());
+                System.out.print(mess.getSourceProfile().getName());
                 System.out.print("(");
                 System.out.print(formatter.format(mess.getDate()));
                 System.out.print(") ");
@@ -222,8 +222,15 @@ public class ProfileView {
 
         System.out.println("13. Pechar a sesión");
 
-        int option = selectElement("", 13, scanner);
-       
+        int option;
+
+        do {
+            option = selectElement("", 13, scanner);
+            if (option == 0) {
+                System.out.println("Non existe esa opción!!");
+            }
+        } while (option < 1 || option > 13);
+
         switch (option) {
             case 1: //1. Escribir unha nova publicación
                 writeNewPost(scanner, profile);
@@ -265,7 +272,6 @@ public class ProfileView {
                 //De momento non facemos nada
                 break;
         }
-        System.out.println("");
     }
 
     /**
@@ -283,10 +289,9 @@ public class ProfileView {
 
         do {
             System.out.println(text);
-            option = scanner.nextInt();
-            scanner.nextLine();
+            option = readNumber(scanner);
             if (option < 0 || option > maxNumber) {
-                System.out.println("Debes introducir un número menor que " + (maxNumber));
+                System.out.println("Debes introducir un número entre 0 e " + (maxNumber));
             }
         } while (option < 0 || option > maxNumber);
 
@@ -449,7 +454,7 @@ public class ProfileView {
 
                 //Pide seleccionar a mensaxe para ler
                 int numberMessage = selectElement("Selecciona unha mensaxe:", profile.getMessages().size(), scanner);
-                
+
                 //Gardo a mensaxe nunha variable local para poder usar no método
                 Message message = profile.getMessages().get(numberMessage);
 
@@ -469,8 +474,15 @@ public class ProfileView {
                 System.out.println("1 - Responder a mensaxe");
                 System.out.println("2 - Eliminar a mensaxe");
                 System.out.println("3 - Volver a biografía");
-                
-                int action = selectElement("", 3, scanner);
+
+                int action;
+
+                do {
+                    action = selectElement("", 3, scanner);
+                    if (action == 0) {
+                        System.out.println("Non existe esa opción!!");
+                    }
+                } while (action < 1 || action > 3);
 
                 //Ejecuta a acción escollida polo usuario
                 switch (action) {
@@ -534,26 +546,27 @@ public class ProfileView {
 
     /**
      * Este método lerá un dato numérico por teclado.
+     *
      * @param scanner un obxecto de tipo scanner.
      * @return o número introducido polo usuario.
      */
-    public static int readNumber(Scanner scanner){
+    public static int readNumber(Scanner scanner) {
         int number;
-        
+
         try {
             number = scanner.nextInt();
             scanner.nextLine();
-            
+
         } catch (NoSuchElementException e) {
             System.err.println("Debes introducir un número!");
-            
+
             scanner.nextLine();
             return readNumber(scanner);
         }
-        
+
         return number;
     }
-    
+
     //Os métodos que se inclúen a partir de aquí, simplemente mostran mensaxes 
     //por pantalla e chámanse dende o controlador para informar ao usuario de 
     //circunstancias que poden provocar que unha acción non se poida realizar. 

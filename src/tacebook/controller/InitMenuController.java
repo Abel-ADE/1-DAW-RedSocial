@@ -49,7 +49,7 @@ public class InitMenuController {
      */
     private void init() {
         do {
-            initMenuView.showLoginMenu();
+            //initMenuView.showLoginMenu();
         } while (!initMenuView.showLoginMenu());
     }
 

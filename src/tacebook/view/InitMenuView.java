@@ -48,9 +48,6 @@ public class InitMenuView {
 
         switch (readNumber(scanner)) {
             case 1:
-                scanner.nextLine();
-                System.out.println();
-
                 System.out.print("Nome do usuario: ");
                 String name = scanner.nextLine();
                 System.out.print("Contrasinal: ");
@@ -82,7 +79,6 @@ public class InitMenuView {
      */
     public void showRegisterMenu() {
         Scanner scan = new Scanner(System.in);
-        System.out.println();
 
         String name, password, password2, status;
         boolean passwordTrue = false;
