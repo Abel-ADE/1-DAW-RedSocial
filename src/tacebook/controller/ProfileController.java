@@ -14,7 +14,7 @@ import tacebook.persistence.PostDB;
 import tacebook.model.Profile;
 import tacebook.persistence.PersistenceException;
 import tacebook.persistence.ProfileDB;
-import tacebook.view.ProfileView;
+import tacebook.view.TextProfileView;
 
 /**
  * Esta clase controlará as accións do menú principal.
@@ -23,7 +23,7 @@ import tacebook.view.ProfileView;
  */
 public class ProfileController {
 
-    private final ProfileView profileView;
+    private final TextProfileView profileView;
     private Profile sessionProfile;
     private Profile shownProfile;
 
@@ -59,7 +59,7 @@ public class ProfileController {
      * Constructor da clase.
      */
     public ProfileController() {
-        this.profileView = new ProfileView(this);
+        this.profileView = new TextProfileView(this);
     }
 
     /**

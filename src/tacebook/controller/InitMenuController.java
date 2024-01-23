@@ -4,7 +4,7 @@
  */
 package tacebook.controller;
 
-import tacebook.view.InitMenuView;
+import tacebook.view.TextInitMenuView;
 import tacebook.model.Profile;
 import tacebook.persistence.PersistenceException;
 import tacebook.persistence.ProfileDB;
@@ -17,14 +17,14 @@ import tacebook.persistence.TacebookDB;
  */
 public class InitMenuController {
 
-    private InitMenuView initMenuView;
+    private TextInitMenuView initMenuView;
 
     /**
      * Método que devolve o atributo que fai referencia a vista do menú.
      *
      * @return o atributo que fai referencia a vista do menú.
      */
-    public InitMenuView getInitMenuView() {
+    public TextInitMenuView getInitMenuView() {
         return initMenuView;
     }
 
@@ -33,7 +33,7 @@ public class InitMenuController {
      *
      * @param initMenuView o atributo que fai referencia a vista do menú.
      */
-    public void setInitMenuView(InitMenuView initMenuView) {
+    public void setInitMenuView(TextInitMenuView initMenuView) {
         this.initMenuView = initMenuView;
     }
 
@@ -41,7 +41,7 @@ public class InitMenuController {
      * Constructor da clase.
      */
     public InitMenuController() {
-        this.initMenuView = new InitMenuView(this);
+        this.initMenuView = new TextInitMenuView(this);
     }
 
     /**

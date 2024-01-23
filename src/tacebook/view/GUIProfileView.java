@@ -1,17 +1,17 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package tacebook.view;
 
 import tacebook.model.Profile;
 
 /**
- * Interfaz que representa a vista do perfil.
+ * Vista do perfil en formato interfaz gráfica.
  *
  * @author Abel Iglesias Moure
  */
-public interface ProfileView {
+public class GUIProfileView implements ProfileView {
 
     /**
      * Método que permite ver o número de publicacións que se mostran na
@@ -19,7 +19,12 @@ public interface ProfileView {
      *
      * @return o número de publicacións que se mostran na visualización.
      */
-    public int getPostsShowed();
+    @Override
+    public int getPostsShowed() {
+
+        return 0;
+
+    }
 
     /**
      * Chamará ao método "showProfileInfo" para mostrar a información do perfil,
@@ -29,58 +34,89 @@ public interface ProfileView {
      *
      * @param profile o perfil do usuario.
      */
-    public void showProfileMenu(Profile profile);
+    @Override
+    public void showProfileMenu(Profile profile) {
+
+    }
 
     /**
      * Alerta de que non se atopou o perfil co que se pretendía establecer
      * amizade.
      */
-    public void showProfileNotFoundMessage();
+    @Override
+    public void showProfileNotFoundMessage() {
+
+    }
 
     /**
      * Informa de que non se pode facer like sobre unha publicación propia.
      */
-    public void showCannotLikeOwnPostMessage();
+    @Override
+    public void showCannotLikeOwnPostMessage() {
+
+    }
 
     /**
      * Informa de que non se pode facer like sobre unha publicación sobre a que
      * xa se fixo like.
      */
-    public void showAlreadyLikedPostMessage();
+    @Override
+    public void showAlreadyLikedPostMessage() {
+
+    }
 
     /**
      * Informa de que xa tes amizade con ese perfil.
      *
      * @param profileName o nome do perfil que se pretendía establecer amizade.
      */
-    public void showIsAlreadyFriendMessage(String profileName);
+    @Override
+    public void showIsAlreadyFriendMessage(String profileName) {
+
+    }
 
     /**
      * Informa de que ese perfil xa ten unha solicitude de amizade contigo.
      *
      * @param profileName o nome do perfil que se pretendía establecer amizade.
      */
-    public void showExistsFrienshipRequestMessage(String profileName);
+    @Override
+    public void showExistsFrienshipRequestMessage(String profileName) {
 
-     /**
+    }
+
+    /**
      * Informa de que xa tes unha solicitude de amizade con ese perfil.
      *
      * @param profileName o nome do perfil que se pretendía establecer amizade.
      */
-    public void showDuplicateFrienshipRequestMessage(String profileName);
+    @Override
+    public void showDuplicateFrienshipRequestMessage(String profileName) {
+
+    }
 
     /**
      * Mostra a mensaxe de erro ao conectar co almacén de datos.
      */
-    public void showConnectionErrorMessage();
+    @Override
+    public void showConnectionErrorMessage() {
+
+    }
 
     /**
      * Mostra a mensaxe de erro durante a lectura do almacén de datos.
      */
-    public void showReadErrorMessage();
+    @Override
+    public void showReadErrorMessage() {
+
+    }
 
     /**
      * Mostra a mensaxe de erro durante a escritura do almacén de datos.
      */
-    public void showWriteErrorMessage();
+    @Override
+    public void showWriteErrorMessage() {
+
+    }
+
 }
