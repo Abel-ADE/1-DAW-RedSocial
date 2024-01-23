@@ -77,7 +77,11 @@ public class ProfileController {
      * menú do perfil para el.
      */
     public void reloadProfile() {
-        shownProfile = ProfileDB.findByName(shownProfile.getName(), 0);
+        try {
+            shownProfile = ProfileDB.findByName(shownProfile.getName(), 0);
+        } catch (PersistenceException ex) {
+            proccessPersistenceException(ex);
+        }
         profileView.showProfileMenu(shownProfile);
     }
 
@@ -101,7 +105,12 @@ public class ProfileController {
      */
     public void updateProfileStatus(String newStatus) {
         sessionProfile.setStatus(newStatus);
-        ProfileDB.update(sessionProfile);
+        try {
+            ProfileDB.update(sessionProfile);
+        } catch (PersistenceException ex) {
+            proccessPersistenceException(ex);
+        }
+
         reloadProfile();
     }
 
@@ -115,11 +124,14 @@ public class ProfileController {
         // Obtener la fecha actual en milisegundos
         long currentTime = System.currentTimeMillis();
 
-        // Crear un objeto Date
-        Date date = new Date(currentTime);
+        Post post = new Post(0, new Date(currentTime), text, destProfile, sessionProfile);
 
-        Post post = new Post(0, date, text, destProfile, sessionProfile);
-        PostDB.save(post);
+        try {
+            PostDB.save(post);
+        } catch (PersistenceException ex) {
+            proccessPersistenceException(ex);
+        }
+
         reloadProfile();
     }
 
@@ -133,11 +145,14 @@ public class ProfileController {
         // Obtener la fecha actual en milisegundos
         long currentTime = System.currentTimeMillis();
 
-        // Crear un objeto Date
-        Date date = new Date(currentTime);
+        Comment comment = new Comment(0, new Date(currentTime), commentText, sessionProfile, post);
 
-        Comment comment = new Comment(0, date, commentText, sessionProfile, post);
-        CommentDB.save(comment);
+        try {
+            CommentDB.save(comment);
+        } catch (PersistenceException ex) {
+            proccessPersistenceException(ex);
+        }
+
         reloadProfile();
     }
 
@@ -149,7 +164,11 @@ public class ProfileController {
     public void newLike(Post post) {
 
         if (sessionProfile != post.getAuthor() && !post.getProfileLikes().contains(sessionProfile)) {
-            PostDB.saveLike(post, sessionProfile);
+            try {
+                PostDB.saveLike(post, sessionProfile);
+            } catch (PersistenceException ex) {
+                proccessPersistenceException(ex);
+            }
         } else {
             profileView.showCannotLikeOwnPostMessage();
         }
@@ -164,7 +183,13 @@ public class ProfileController {
      * amizade.
      */
     public void newFriendshipRequest(String profileName) {
-        Profile profile = ProfileDB.findByName(profileName, 0);
+        Profile profile = null;
+
+        try {
+            profile = ProfileDB.findByName(profileName, 0);
+        } catch (PersistenceException ex) {
+            proccessPersistenceException(ex);
+        }
 
         if (profile != null) {
 
@@ -177,7 +202,11 @@ public class ProfileController {
             } else if (profile.equals(sessionProfile)) {
                 profileView.showNotFriendshipYourself();
             } else {
-                ProfileDB.saveFrienshipRequest(profile, sessionProfile);
+                try {
+                    ProfileDB.saveFrienshipRequest(profile, sessionProfile);
+                } catch (PersistenceException ex) {
+                    proccessPersistenceException(ex);
+                }
             }
         } else {
             profileView.showProfileNotFoundMessage();
@@ -193,8 +222,12 @@ public class ProfileController {
      * @param sourceProfile o perfil de orixe.
      */
     public void acceptFriendshipRequest(Profile sourceProfile) {
-        ProfileDB.removeFrienshipRequest(sessionProfile, sourceProfile);
-        ProfileDB.saveFriendship(sessionProfile, sourceProfile);
+        try {
+            ProfileDB.removeFrienshipRequest(sessionProfile, sourceProfile);
+            ProfileDB.saveFriendship(sessionProfile, sourceProfile);
+        } catch (PersistenceException ex) {
+            proccessPersistenceException(ex);
+        }
         reloadProfile();
     }
 
@@ -204,7 +237,11 @@ public class ProfileController {
      * @param sourceProfile o perfil de orixe.
      */
     public void rejectFriendshipRequest(Profile sourceProfile) {
-        ProfileDB.removeFrienshipRequest(sessionProfile, sourceProfile);
+        try {
+            ProfileDB.removeFrienshipRequest(sessionProfile, sourceProfile);
+        } catch (PersistenceException ex) {
+            proccessPersistenceException(ex);
+        }
         reloadProfile();
     }
 
@@ -218,11 +255,14 @@ public class ProfileController {
         // Obtener la fecha actual en milisegundos
         long currentTime = System.currentTimeMillis();
 
-        // Crear un objeto Date
-        Date date = new Date(currentTime);
+        Message message = new Message(0, text, new Date(currentTime), false, destProfile, sessionProfile);
 
-        Message message = new Message(0, text, date, false, destProfile, sessionProfile);
-        MessageDB.save(message);
+        try {
+            MessageDB.save(message);
+        } catch (PersistenceException ex) {
+            proccessPersistenceException(ex);
+        }
+
         reloadProfile();
     }
 
@@ -232,7 +272,12 @@ public class ProfileController {
      * @param message a mensaxe que imos eliminar.
      */
     public void deleteMessage(Message message) {
-        MessageDB.remove(message);
+        try {
+            MessageDB.remove(message);
+        } catch (PersistenceException ex) {
+            proccessPersistenceException(ex);
+        }
+
         reloadProfile();
     }
 
@@ -243,7 +288,13 @@ public class ProfileController {
      */
     public void markMessageAsRead(Message message) {
         message.setRead(true);
-        MessageDB.update(message);
+        
+        try {
+            MessageDB.update(message);
+        } catch (PersistenceException ex) {
+            proccessPersistenceException(ex);
+        }
+
         reloadProfile();
     }
 
@@ -258,7 +309,7 @@ public class ProfileController {
         newMessage(sessionProfile, text);
         reloadProfile();
     }
-    
+
     /**
      * encárgase de procesar unha excepción de persistencia, e en función do
      * código da excepción chamará a un dos tres métodos engadidos nas vistas no
