@@ -6,8 +6,8 @@ package tacebook.controller;
 
 import tacebook.view.InitMenuView;
 import tacebook.model.Profile;
+import tacebook.persistence.PersistenceException;
 import tacebook.persistence.ProfileDB;
-
 
 /**
  * Esta clase será a que conteña o método "main()" da aplicación.
@@ -102,12 +102,33 @@ public class InitMenuController {
     }
 
     /**
+     * encárgase de procesar unha excepción de persistencia, e en función do
+     * código da excepción chamará a un dos tres métodos engadidos nas vistas no
+     * punto anterior.
+     *
+     * @param ex unha excepción de persistencia.
+     */
+    private void proccessPersistenceException(PersistenceException ex) {
+        switch (ex.getCode()) {
+            case PersistenceException.CONECTION_ERROR:
+                initMenuView.showConnectionErrorMessage();
+                break;
+            case PersistenceException.CANNOT_READ:
+                initMenuView.showReadErrorMessage();
+                break;
+            case PersistenceException.CANNOT_WRITE:
+                initMenuView.showWriteErrorMessage();
+                break;
+        }
+    }
+
+    /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
+
         InitMenuController initMenuController = new InitMenuController();
         initMenuController.init();
-        
+
     }
 }

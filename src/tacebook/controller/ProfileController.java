@@ -12,6 +12,7 @@ import tacebook.persistence.MessageDB;
 import tacebook.model.Post;
 import tacebook.persistence.PostDB;
 import tacebook.model.Profile;
+import tacebook.persistence.PersistenceException;
 import tacebook.persistence.ProfileDB;
 import tacebook.view.ProfileView;
 
@@ -256,6 +257,27 @@ public class ProfileController {
         markMessageAsRead(message);
         newMessage(sessionProfile, text);
         reloadProfile();
+    }
+    
+    /**
+     * encárgase de procesar unha excepción de persistencia, e en función do
+     * código da excepción chamará a un dos tres métodos engadidos nas vistas no
+     * punto anterior.
+     *
+     * @param ex unha excepción de persistencia.
+     */
+    private void proccessPersistenceException(PersistenceException ex) {
+        switch (ex.getCode()) {
+            case PersistenceException.CONECTION_ERROR:
+                profileView.showConnectionErrorMessage();
+                break;
+            case PersistenceException.CANNOT_READ:
+                profileView.showReadErrorMessage();
+                break;
+            case PersistenceException.CANNOT_WRITE:
+                profileView.showWriteErrorMessage();
+                break;
+        }
     }
 
 }
