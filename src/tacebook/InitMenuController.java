@@ -37,8 +37,7 @@ public class InitMenuController {
      * Constructor da clase.
      */
     public InitMenuController() {
-        InitMenuView initMenuView = new InitMenuView(this);
-        this.initMenuView = initMenuView;
+        this.initMenuView = new InitMenuView(this);
     }
 
     /**

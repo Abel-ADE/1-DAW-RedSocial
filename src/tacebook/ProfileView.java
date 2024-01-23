@@ -172,6 +172,7 @@ public class ProfileView {
             profileController.updateProfileStatus(scanner.nextLine());
         } else {
             System.out.println("Esta opción só está permitida na túa biografía");
+            showProfileMenu(profile);
         }
     }
 
@@ -186,7 +187,6 @@ public class ProfileView {
     public void showProfileMenu(Profile profile) {
         Scanner scanner = new Scanner(System.in);
         boolean isOwnProfile = profileController.getSessionProfile() == profileController.getShownProfile();
-        int option;
 
         showProfileInfo(isOwnProfile, profile);
 
@@ -216,14 +216,8 @@ public class ProfileView {
 
         System.out.println("13. Pechar a sesión");
 
-        do {
-            option = scanner.nextInt();
-            scanner.nextLine();
-            if (option <= 0 || option > 13) {
-                System.out.println("Debes introducir un número entre 0 e 13");
-            }
-        } while (option <= 0 || option > 13);
-
+        int option = selectElement("", 13, scanner);
+       
         switch (option) {
             case 1: //1. Escribir unha nova publicación
                 writeNewPost(scanner, profile);
@@ -368,6 +362,7 @@ public class ProfileView {
             profileController.newFriendshipRequest(nameProfile);
         } else {
             System.out.println("Esta opción só está permitida na túa biografía");
+            showProfileMenu(profile);
         }
     }
 
@@ -384,7 +379,6 @@ public class ProfileView {
      */
     private void proccessFriendshipRequest(boolean ownProfile, Scanner scanner, Profile profile, boolean accept) {
         if (ownProfile) {
-
             if (!profile.getFriendshipRequests().isEmpty()) {
                 int numberFriendshipRequest = selectElement("Dame o número da solicitude de amizade:", profile.getFriendshipRequests().size(), scanner);
                 if (accept) {
@@ -394,10 +388,12 @@ public class ProfileView {
                 }
             } else {
                 System.out.println("Non hai solicitudes de amizade pendentes!!");
+                showProfileMenu(profile);
             }
 
         } else {
             System.out.println("Esta opción só está permitida na túa biografía");
+            showProfileMenu(profile);
         }
     }
 
@@ -419,6 +415,7 @@ public class ProfileView {
             String message = scanner.nextLine();
             if (profile.getFriends().isEmpty()) {
                 System.out.println("Non tes amig@s!!");
+                showProfileMenu(profile);
             } else {
                 profileController.newMessage(profile.getFriends().get(numberFriend), message);
             }
@@ -466,8 +463,8 @@ public class ProfileView {
                 System.out.println("1 - Responder a mensaxe");
                 System.out.println("2 - Eliminar a mensaxe");
                 System.out.println("3 - Volver a biografía");
-                int action = scanner.nextInt();
-                scanner.nextLine();
+                
+                int action = selectElement("", 3, scanner);
 
                 //Ejecuta a acción escollida polo usuario
                 switch (action) {
@@ -480,15 +477,17 @@ public class ProfileView {
                         profileController.deleteMessage(message);
                         break;
                     case 3:
-                        message.setRead(true);
+                        profileController.markMessageAsRead(message);
                         break;
                 }
 
             } else {
                 System.out.println("Non tes mensaxes!!");
+                showProfileMenu(profile);
             }
         } else {
             System.out.println("Esta opción só está permitida na túa biografía");
+            showProfileMenu(profile);
         }
     }
 
@@ -507,14 +506,16 @@ public class ProfileView {
                 profileController.deleteMessage(profile.getMessages().get(numberMessage));
             } else {
                 System.out.println("Non tes mensaxes!!");
+                showProfileMenu(profile);
             }
         } else {
             System.out.println("Esta opción só está permitida na túa biografía");
+            showProfileMenu(profile);
         }
     }
 
     /**
-     * Pide o número de publicacións que se queren visualizar e chamar ao
+     * Pide o número de publicacións que se queren visualizar e chama ao
      * controlador para recargar o perfil.
      *
      * @param scanner un obxecto da clase Scanner.
@@ -560,6 +561,9 @@ public class ProfileView {
         System.out.println("Xa tes amizade con " + profileName);
     }
 
+    /**
+     * Indorma ao usuario que non se pode establecer amizade consigo mesmo.
+     */
     public void showNotFriendshipYourself() {
         System.out.println("Non se pode establecer amizade contigo mesmo!");
     }
