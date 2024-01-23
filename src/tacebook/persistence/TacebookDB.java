@@ -18,8 +18,9 @@ public class TacebookDB {
     /**
      * Devolve a lista de perfis do programa.
      * @return a lista de perfis do programa.
+     * @throws tacebook.persistence.PersistenceException
      */
-    public static ArrayList<Profile> getProfiles() {
+    public static ArrayList<Profile> getProfiles() throws PersistenceException {
         return profiles;
     }
        

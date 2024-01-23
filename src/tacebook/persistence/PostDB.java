@@ -18,8 +18,9 @@ public class PostDB {
      * Almacena unha nova publicación.
      *
      * @param post unha publicación.
+     * @throws tacebook.persistence.PersistenceException
      */
-    public static void save(Post post) {
+    public static void save(Post post) throws PersistenceException {
         post.getProfile().getPosts().add(0, post);
     }
 
@@ -28,8 +29,9 @@ public class PostDB {
      *
      * @param post unha publicación.
      * @param profile o perfil que lle da like a publicación.
+     * @throws tacebook.persistence.PersistenceException
      */
-    public static void saveLike(Post post, Profile profile) {
+    public static void saveLike(Post post, Profile profile) throws PersistenceException {
         post.getProfileLikes().add(profile);
     }
 

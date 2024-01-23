@@ -18,11 +18,13 @@ public class ProfileDB {
      * perfil que queremos recuperar, e devolve o obxecto "Profile" asociado a
      * ese usuario, ou "null" se o usuario non existe.
      *
-     * @param name
-     * @param numberOfPosts
-     * @return
+     * @param name o nome dun usuario.
+     * @param numberOfPosts o número de publicacións dese perfil.
+     * @return devolve o obxecto "Profile" asociado a ese usuario, ou "null" se
+     * o usuario non existe.
+     * @throws tacebook.persistence.PersistenceException
      */
-    public static Profile findByName(String name, int numberOfPosts) {
+    public static Profile findByName(String name, int numberOfPosts) throws PersistenceException {
 
         for (Profile profile : TacebookDB.getProfiles()) {
             if (name.equals(profile.getName())) {
@@ -37,12 +39,14 @@ public class ProfileDB {
      * publicacións dese perfil que queremos recuperar, e devolve o obxecto
      * "Profile" asociado a ese usuario, ou "null" se ese usuario non existe.
      *
-     * @param name
-     * @param password
-     * @param numberOfPosts
-     * @return
+     * @param name o nome dun usuario.
+     * @param password o contrasinal dun usuario.
+     * @param numberOfPosts o número de publicacións dese perfil.
+     * @return devolve o obxecto "Profile" asociado a ese usuario, ou "null" se
+     * ese usuario non existe.
+     * @throws tacebook.persistence.PersistenceException
      */
-    public static Profile findByNameAndPassword(String name, String password, int numberOfPosts) {
+    public static Profile findByNameAndPassword(String name, String password, int numberOfPosts) throws PersistenceException {
 
         for (Profile profile : TacebookDB.getProfiles()) {
             if (name.equals(profile.getName()) && password.equals(profile.getPassword())) {
@@ -55,9 +59,10 @@ public class ProfileDB {
     /**
      * Almacena o perfil no almacenamento.
      *
-     * @param profile
+     * @param profile o perfil que queremos almacenar.
+     * @throws tacebook.persistence.PersistenceException
      */
-    public static void save(Profile profile) {
+    public static void save(Profile profile) throws PersistenceException {
 
         TacebookDB.getProfiles().add(profile);
     }
@@ -65,9 +70,10 @@ public class ProfileDB {
     /**
      * Actualiza o perfil no almacemento (neste caso, non ten que facer nada).
      *
-     * @param profile
+     * @param profile o perfil que queremos actualizar.
+     * @throws tacebook.persistence.PersistenceException
      */
-    public static void update(Profile profile) {
+    public static void update(Profile profile) throws PersistenceException {
 
     }
 
@@ -76,8 +82,9 @@ public class ProfileDB {
      *
      * @param destProfile perfil que ten a solicitud de amizade.
      * @param sourceProfile perfil que solicitou a amizade.
+     * @throws tacebook.persistence.PersistenceException
      */
-    public static void saveFrienshipRequest(Profile destProfile, Profile sourceProfile) {
+    public static void saveFrienshipRequest(Profile destProfile, Profile sourceProfile) throws PersistenceException {
         destProfile.getFriendshipRequests().add(sourceProfile);
     }
 
@@ -86,8 +93,9 @@ public class ProfileDB {
      *
      * @param destProfile perfil que ten a solicitud de amizade.
      * @param sourceProfile perfil que solicitou a amizade.
+     * @throws tacebook.persistence.PersistenceException
      */
-    public static void removeFrienshipRequest(Profile destProfile, Profile sourceProfile) {
+    public static void removeFrienshipRequest(Profile destProfile, Profile sourceProfile) throws PersistenceException {
         destProfile.getFriendshipRequests().remove(sourceProfile);
     }
 
@@ -96,8 +104,9 @@ public class ProfileDB {
      *
      * @param profile1 obxecto perfil que ten amizade co outro obxecto perfil.
      * @param profile2 obxecto perfil que ten amizade co outro obxecto perfil.
+     * @throws tacebook.persistence.PersistenceException
      */
-    public static void saveFriendship(Profile profile1, Profile profile2) {
+    public static void saveFriendship(Profile profile1, Profile profile2) throws PersistenceException {
         profile1.getFriends().add(profile2);
         profile2.getFriends().add(profile1);
     }

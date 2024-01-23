@@ -14,8 +14,9 @@ public class CommentDB {
     /**
      * Almacena un novo comentario.
      * @param comment o comentario.
+     * @throws tacebook.persistence.PersistenceException
      */
-    public static void save(Comment comment){
+    public static void save(Comment comment) throws PersistenceException{
         comment.getPost().getComments().add(0, comment);
     }
 }
