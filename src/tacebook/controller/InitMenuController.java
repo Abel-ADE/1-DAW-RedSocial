@@ -4,11 +4,14 @@
  */
 package tacebook.controller;
 
+import java.util.Scanner;
 import tacebook.view.TextInitMenuView;
 import tacebook.model.Profile;
 import tacebook.persistence.PersistenceException;
 import tacebook.persistence.ProfileDB;
 import tacebook.persistence.TacebookDB;
+import tacebook.view.GUIInitMenuView;
+import tacebook.view.InitMenuView;
 
 /**
  * Esta clase será a que conteña o método "main()" da aplicación.
@@ -17,14 +20,15 @@ import tacebook.persistence.TacebookDB;
  */
 public class InitMenuController {
 
-    private TextInitMenuView initMenuView;
+    private InitMenuView initMenuView;
+    private boolean textMode;
 
     /**
      * Método que devolve o atributo que fai referencia a vista do menú.
      *
      * @return o atributo que fai referencia a vista do menú.
      */
-    public TextInitMenuView getInitMenuView() {
+    public InitMenuView getInitMenuView() {
         return initMenuView;
     }
 
@@ -33,15 +37,17 @@ public class InitMenuController {
      *
      * @param initMenuView o atributo que fai referencia a vista do menú.
      */
-    public void setInitMenuView(TextInitMenuView initMenuView) {
+    public void setInitMenuView(InitMenuView initMenuView) {
         this.initMenuView = initMenuView;
     }
 
     /**
      * Constructor da clase.
+     *
+     * @param textMode indica se a interfaz está en modo texto ou non.
      */
-    public InitMenuController() {
-        this.initMenuView = new TextInitMenuView(this);
+    public InitMenuController(boolean textMode) {
+        this.initMenuView = textMode ? new TextInitMenuView(this) : new GUIInitMenuView(this);
     }
 
     /**
@@ -62,7 +68,7 @@ public class InitMenuController {
      */
     public void login(String name, String password) {
 
-        ProfileController profileController = new ProfileController();
+        ProfileController profileController = new ProfileController(textMode);
         Profile profile = null;
 
         try {
@@ -105,7 +111,7 @@ public class InitMenuController {
 
         if (existProfile == null) {
 
-            ProfileController profileController = new ProfileController();
+            ProfileController profileController = new ProfileController(textMode);
             Profile profile = new Profile(name, password, status);
 
             try {
@@ -147,10 +153,9 @@ public class InitMenuController {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-
-        InitMenuController initMenuController = new InitMenuController();
+        
+        InitMenuController initMenuController = new InitMenuController(false);
         initMenuController.init();
         TacebookDB.close();
-
     }
 }

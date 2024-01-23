@@ -24,6 +24,7 @@ public class TextProfileView implements ProfileView{
      * Indica o número de publicacións que se mostran na visualización.
      */
     private int postsShowed = 10;
+    
     /**
      * Para formatear as datas.
      */
@@ -610,6 +611,7 @@ public class TextProfileView implements ProfileView{
     /**
      * Indorma ao usuario que non se pode establecer amizade consigo mesmo.
      */
+    @Override
     public void showNotFriendshipYourself() {
         System.out.println("Non se pode establecer amizade contigo mesmo!");
     }

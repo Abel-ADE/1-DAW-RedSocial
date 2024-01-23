@@ -83,4 +83,9 @@ public interface ProfileView {
      * Mostra a mensaxe de erro durante a escritura do almacén de datos.
      */
     public void showWriteErrorMessage();
+
+    /**
+     * Indorma ao usuario que non se pode establecer amizade consigo mesmo.
+     */
+    public void showNotFriendshipYourself();
 }

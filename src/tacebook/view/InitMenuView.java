@@ -10,7 +10,7 @@ package tacebook.view;
  * @author Abel Iglesias Moure
  */
 public interface InitMenuView {
-
+    
     /**
      *
      * Mostra o menú de inicio de sesión, coas opcións de iniciar sesión, crear

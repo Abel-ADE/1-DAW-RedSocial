@@ -14,6 +14,10 @@ import tacebook.persistence.PostDB;
 import tacebook.model.Profile;
 import tacebook.persistence.PersistenceException;
 import tacebook.persistence.ProfileDB;
+import tacebook.view.GUIInitMenuView;
+import tacebook.view.GUIProfileView;
+import tacebook.view.ProfileView;
+import tacebook.view.TextInitMenuView;
 import tacebook.view.TextProfileView;
 
 /**
@@ -23,9 +27,10 @@ import tacebook.view.TextProfileView;
  */
 public class ProfileController {
 
-    private final TextProfileView profileView;
+    private final ProfileView profileView;
     private Profile sessionProfile;
     private Profile shownProfile;
+    private boolean textMode;
 
     /**
      * Obten a sesión do perfil.
@@ -57,9 +62,10 @@ public class ProfileController {
 
     /**
      * Constructor da clase.
+     * @param textMode indica se a interfaz está en modo texto ou non.
      */
-    public ProfileController() {
-        this.profileView = new TextProfileView(this);
+    public ProfileController(boolean textMode) {
+        this.profileView = textMode ? new TextProfileView(this) : new GUIProfileView(this);
     }
 
     /**
