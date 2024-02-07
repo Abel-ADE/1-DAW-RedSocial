@@ -4,7 +4,6 @@
  */
 package tacebook.controller;
 
-import java.util.Scanner;
 import tacebook.view.TextInitMenuView;
 import tacebook.model.Profile;
 import tacebook.persistence.PersistenceException;
@@ -153,8 +152,14 @@ public class InitMenuController {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        InitMenuController initMenuController;
+                
+        if (args.length == 1 && args[0].equals("text")) {
+            initMenuController = new InitMenuController(true);
+        }else{
+            initMenuController = new InitMenuController(false);
+        }
         
-        InitMenuController initMenuController = new InitMenuController(false);
         initMenuController.init();
         TacebookDB.close();
     }

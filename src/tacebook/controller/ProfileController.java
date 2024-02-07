@@ -14,10 +14,8 @@ import tacebook.persistence.PostDB;
 import tacebook.model.Profile;
 import tacebook.persistence.PersistenceException;
 import tacebook.persistence.ProfileDB;
-import tacebook.view.GUIInitMenuView;
 import tacebook.view.GUIProfileView;
 import tacebook.view.ProfileView;
-import tacebook.view.TextInitMenuView;
 import tacebook.view.TextProfileView;
 
 /**
