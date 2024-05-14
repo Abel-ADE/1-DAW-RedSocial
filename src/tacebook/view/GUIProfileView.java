@@ -4,23 +4,25 @@
  */
 package tacebook.view;
 
+import java.awt.GridLayout;
+import java.awt.LayoutManager;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
+import javax.swing.plaf.basic.BasicListUI;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import tacebook.controller.ProfileController;
 import tacebook.model.Comment;
+import tacebook.model.Message;
 import tacebook.model.Post;
 import tacebook.model.Profile;
 
@@ -29,6 +31,11 @@ import tacebook.model.Profile;
  * @author abel.iglesiasmoure
  */
 public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
+
+    /**
+     * ArrayList cos perfís que me solicitaron amizade.
+     */
+    private ArrayList<Profile> FriendShipArrayList;
 
     /**
      * Mantén a referencia ao obxecto controlador.
@@ -54,31 +61,54 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
      */
     public GUIProfileView(java.awt.Frame parent, boolean modal, ProfileController profileController) {
         super(parent, modal);
+        this.FriendShipArrayList = new ArrayList<>();
         this.profileController = profileController;
-        this.formatter = new SimpleDateFormat("dd-MM-yyy 'ás' HH:mm:ss");
+        this.formatter = new SimpleDateFormat("'O' dd-MM-yyy 'ás' HH:mm:ss");
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
+        // Cada vez que se interactúa cos post
         jTablePosts.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
             public void valueChanged(ListSelectionEvent event) {
                 //Cargo os datos dos comentarios
                 int row = jTablePosts.getSelectedRow();
-                Post post = (Post) jTablePosts.getValueAt(row, 2);
-                ArrayList<Comment> comments = post.getComments();
 
-                DefaultTableModel myModel = (DefaultTableModel) jTableComments.getModel();
-                myModel.setRowCount(0);
+                if (row != -1) {
+                    Post post = (Post) jTablePosts.getValueAt(row, 2);
 
-                for (int i = 0; i < comments.size() && !comments.isEmpty(); i++) {
-                    Comment comment = comments.get(i);
-                    myModel.addRow(new Object[]{
-                        comment.getText(),
-                        comment.getSourceProfile(),
-                        comment.getDate()});
+                    ArrayList<Comment> comments = post.getComments();
+
+                    DefaultTableModel myModel = (DefaultTableModel) jTableComments.getModel();
+                    myModel.setRowCount(0);
+
+                    for (int i = 0; i < comments.size() && !comments.isEmpty(); i++) {
+                        Comment comment = comments.get(i);
+                        myModel.addRow(new Object[]{
+                            comment.getText(),
+                            comment.getSourceProfile(),
+                            formatter.format(comment.getDate())
+                        });
+                    }
+
                 }
 
             }
         });
+
+        //Cada vez que se fai doble click nas mensaxes privadas
+        jTableMessages.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent mouseEvent) {
+                JTable table = (JTable) mouseEvent.getSource();
+                Point point = mouseEvent.getPoint();
+                int row = table.rowAtPoint(point);
+                if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
+                    jButtonReadMessageActionPerformed(null);
+                }
+            }
+        });
+
     }
 
     /**
@@ -99,20 +129,24 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
         jLabel3 = new javax.swing.JLabel();
         jLabelStatusUser = new javax.swing.JLabel();
         jPanelFooter = new javax.swing.JPanel();
+        jButtonBackBiography = new javax.swing.JButton();
+        jButtonSendMessageFooter = new javax.swing.JButton();
         jButtonChangeStatus = new javax.swing.JButton();
         jButtonCloseSesion = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanelBiografia = new javax.swing.JPanel();
         jSplitBiografia = new javax.swing.JSplitPane();
         jPanelNorte = new javax.swing.JPanel();
+        jPanel7 = new javax.swing.JPanel();
+        jLabelPostShowed = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTablePosts = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jButtonNewPost = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        jButtonNewComment = new javax.swing.JButton();
+        jButtonNewLike = new javax.swing.JButton();
+        jButtonShowLastPosts = new javax.swing.JButton();
         jPanelSur = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -122,25 +156,25 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
         jPanelNorte1 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
+        jTableFriends = new javax.swing.JTable();
         jPanel4 = new javax.swing.JPanel();
-        jButton7 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
+        jButtonShowBiography = new javax.swing.JButton();
+        jButtonSendMessage = new javax.swing.JButton();
         jPanelSur1 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        jTable4 = new javax.swing.JTable();
         jPanel5 = new javax.swing.JPanel();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
-        jButton9 = new javax.swing.JButton();
+        jButtonAceptFriend = new javax.swing.JButton();
+        jButtonRejectFriend = new javax.swing.JButton();
+        jButtonNewFriendShipRequest = new javax.swing.JButton();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jListFriendshipRequest = new javax.swing.JList<>();
         jPanelMensaxes = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jScrollPane5 = new javax.swing.JScrollPane();
-        jTable5 = new javax.swing.JTable();
+        jTableMessages = new javax.swing.JTable();
         jPanel6 = new javax.swing.JPanel();
-        jButton10 = new javax.swing.JButton();
-        jButton11 = new javax.swing.JButton();
+        jButtonReadMessage = new javax.swing.JButton();
+        jButtonDeleteMessage = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("tacebook - Perfil de usuario");
@@ -170,12 +204,35 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
 
         getContentPane().add(jPanelHeader, java.awt.BorderLayout.NORTH);
 
+        jButtonBackBiography.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/reverse.png"))); // NOI18N
+        jButtonBackBiography.setText("Volver a miña biografía");
+        jButtonBackBiography.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonBackBiographyActionPerformed(evt);
+            }
+        });
+        jPanelFooter.add(jButtonBackBiography);
+
+        jButtonSendMessageFooter.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/letter.png"))); // NOI18N
+        jButtonSendMessageFooter.setText("Enviar mensaxe privada");
+        jPanelFooter.add(jButtonSendMessageFooter);
+
         jButtonChangeStatus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/anatomy.png"))); // NOI18N
         jButtonChangeStatus.setText("Cambiar estado");
+        jButtonChangeStatus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonChangeStatusActionPerformed(evt);
+            }
+        });
         jPanelFooter.add(jButtonChangeStatus);
 
         jButtonCloseSesion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/exit.png"))); // NOI18N
         jButtonCloseSesion.setText("Pechar sesión");
+        jButtonCloseSesion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCloseSesionActionPerformed(evt);
+            }
+        });
         jPanelFooter.add(jButtonCloseSesion);
 
         getContentPane().add(jPanelFooter, java.awt.BorderLayout.SOUTH);
@@ -190,8 +247,13 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
 
         jPanelNorte.setLayout(new java.awt.BorderLayout());
 
-        jLabel2.setText("10 Últimas publicacións:");
-        jPanelNorte.add(jLabel2, java.awt.BorderLayout.NORTH);
+        jPanel7.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+        jPanel7.add(jLabelPostShowed);
+
+        jLabel2.setText("Últimas publicacións:");
+        jPanel7.add(jLabel2);
+
+        jPanelNorte.add(jPanel7, java.awt.BorderLayout.NORTH);
 
         jScrollPane1.setFocusTraversalPolicyProvider(true);
 
@@ -226,17 +288,32 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
         });
         jPanel3.add(jButtonNewPost);
 
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/speech-bubbles.png"))); // NOI18N
-        jButton2.setText("Comentar");
-        jPanel3.add(jButton2);
+        jButtonNewComment.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/speech-bubbles.png"))); // NOI18N
+        jButtonNewComment.setText("Comentar");
+        jButtonNewComment.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonNewCommentActionPerformed(evt);
+            }
+        });
+        jPanel3.add(jButtonNewComment);
 
-        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/facebook-hand.png"))); // NOI18N
-        jButton3.setText("Gústame");
-        jPanel3.add(jButton3);
+        jButtonNewLike.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/facebook-hand.png"))); // NOI18N
+        jButtonNewLike.setText("Gústame");
+        jButtonNewLike.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonNewLikeActionPerformed(evt);
+            }
+        });
+        jPanel3.add(jButtonNewLike);
 
-        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/icon-plus.png"))); // NOI18N
-        jButton4.setText("Ver anteriores publicacións");
-        jPanel3.add(jButton4);
+        jButtonShowLastPosts.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/icon-plus.png"))); // NOI18N
+        jButtonShowLastPosts.setText("Ver anteriores publicacións");
+        jButtonShowLastPosts.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonShowLastPostsActionPerformed(evt);
+            }
+        });
+        jPanel3.add(jButtonShowLastPosts);
 
         jPanelNorte.add(jPanel3, java.awt.BorderLayout.SOUTH);
 
@@ -255,7 +332,15 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
             new String [] {
                 "Texto", "De", "Data"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane2.setViewportView(jTableComments);
 
         jPanelSur.add(jScrollPane2, java.awt.BorderLayout.CENTER);
@@ -279,27 +364,45 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
 
         jScrollPane3.setFocusTraversalPolicyProvider(true);
 
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+        jTableFriends.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
                 "Nome", "Estado"
             }
-        ));
-        jScrollPane3.setViewportView(jTable3);
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane3.setViewportView(jTableFriends);
 
         jPanelNorte1.add(jScrollPane3, java.awt.BorderLayout.CENTER);
 
         jPanel4.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 10, 10));
 
-        jButton7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/post-it.png"))); // NOI18N
-        jButton7.setText("Ver biografía");
-        jPanel4.add(jButton7);
+        jButtonShowBiography.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/post-it.png"))); // NOI18N
+        jButtonShowBiography.setText("Ver biografía");
+        jButtonShowBiography.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonShowBiographyActionPerformed(evt);
+            }
+        });
+        jPanel4.add(jButtonShowBiography);
 
-        jButton8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/letter.png"))); // NOI18N
-        jButton8.setText("Enviar mensaxe privada");
-        jPanel4.add(jButton8);
+        jButtonSendMessage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/letter.png"))); // NOI18N
+        jButtonSendMessage.setText("Enviar mensaxe privada");
+        jButtonSendMessage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSendMessageActionPerformed(evt);
+            }
+        });
+        jPanel4.add(jButtonSendMessage);
 
         jPanelNorte1.add(jPanel4, java.awt.BorderLayout.SOUTH);
 
@@ -311,33 +414,40 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
         jLabel6.setText("Tes solicitudes de amizade dos seguintes perfís:");
         jPanelSur1.add(jLabel6, java.awt.BorderLayout.PAGE_START);
 
-        jTable4.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Texto", "De", "Data"
-            }
-        ));
-        jScrollPane4.setViewportView(jTable4);
-
-        jPanelSur1.add(jScrollPane4, java.awt.BorderLayout.CENTER);
-
         jPanel5.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 10, 5));
 
-        jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/accept.png"))); // NOI18N
-        jButton5.setText("Aceptar solicitude");
-        jPanel5.add(jButton5);
+        jButtonAceptFriend.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/accept.png"))); // NOI18N
+        jButtonAceptFriend.setText("Aceptar solicitude");
+        jButtonAceptFriend.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAceptFriendActionPerformed(evt);
+            }
+        });
+        jPanel5.add(jButtonAceptFriend);
 
-        jButton6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/reject.png"))); // NOI18N
-        jButton6.setText("Rexeitar solicitude");
-        jPanel5.add(jButton6);
+        jButtonRejectFriend.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/reject.png"))); // NOI18N
+        jButtonRejectFriend.setText("Rexeitar solicitude");
+        jButtonRejectFriend.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonRejectFriendActionPerformed(evt);
+            }
+        });
+        jPanel5.add(jButtonRejectFriend);
 
-        jButton9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/handshake.png"))); // NOI18N
-        jButton9.setText("Nova solicitude de amizade");
-        jPanel5.add(jButton9);
+        jButtonNewFriendShipRequest.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/handshake.png"))); // NOI18N
+        jButtonNewFriendShipRequest.setText("Nova solicitude de amizade");
+        jButtonNewFriendShipRequest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonNewFriendShipRequestActionPerformed(evt);
+            }
+        });
+        jPanel5.add(jButtonNewFriendShipRequest);
 
         jPanelSur1.add(jPanel5, java.awt.BorderLayout.PAGE_END);
+
+        jScrollPane6.setViewportView(jListFriendshipRequest);
+
+        jPanelSur1.add(jScrollPane6, java.awt.BorderLayout.CENTER);
 
         jSplitBiografia1.setRightComponent(jPanelSur1);
 
@@ -350,27 +460,52 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
         jLabel7.setText("Mensaxes privadas:");
         jPanelMensaxes.add(jLabel7, java.awt.BorderLayout.PAGE_START);
 
-        jTable5.setModel(new javax.swing.table.DefaultTableModel(
+        jTableMessages.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
                 "Lida", "Data", "De", "Texto"
             }
-        ));
-        jScrollPane5.setViewportView(jTable5);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane5.setViewportView(jTableMessages);
 
         jPanelMensaxes.add(jScrollPane5, java.awt.BorderLayout.CENTER);
 
         jPanel6.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 10, 5));
 
-        jButton10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/email.png"))); // NOI18N
-        jButton10.setText("Ler mensaxe");
-        jPanel6.add(jButton10);
+        jButtonReadMessage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/email.png"))); // NOI18N
+        jButtonReadMessage.setText("Ler mensaxe");
+        jButtonReadMessage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonReadMessageActionPerformed(evt);
+            }
+        });
+        jPanel6.add(jButtonReadMessage);
 
-        jButton11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/reject.png"))); // NOI18N
-        jButton11.setText("Eliminar mensaxe");
-        jPanel6.add(jButton11);
+        jButtonDeleteMessage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/reject.png"))); // NOI18N
+        jButtonDeleteMessage.setText("Eliminar mensaxe");
+        jButtonDeleteMessage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDeleteMessageActionPerformed(evt);
+            }
+        });
+        jPanel6.add(jButtonDeleteMessage);
 
         jPanelMensaxes.add(jPanel6, java.awt.BorderLayout.PAGE_END);
 
@@ -383,35 +518,266 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonNewPostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNewPostActionPerformed
-        GregorianCalendar calendar = new GregorianCalendar();
-        Date date = calendar.getTime();
-        String text = "";
-        Post post = new Post(0, date , text, profileController.getSessionProfile() , profileController.getSessionProfile());
+        String text = JOptionPane.showInputDialog("Introduce o texto da publicación");
+
+        if (text != null) {
+            profileController.newPost(text, profileController.getShownProfile());
+        }
     }//GEN-LAST:event_jButtonNewPostActionPerformed
+
+    private void jButtonNewCommentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNewCommentActionPerformed
+        // Recupero a fila seleccionada
+        int row = jTablePosts.getSelectedRow();
+
+        if (row != -1) {
+            Post post = (Post) jTablePosts.getValueAt(row, 2);
+            String text = JOptionPane.showInputDialog("Introduce o texto do comentario");
+
+            if (text != null) {
+                profileController.newComment(post, text);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Debes seleccionar unha publicación", "Atención", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_jButtonNewCommentActionPerformed
+
+    private void jButtonNewLikeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNewLikeActionPerformed
+        // Recupero a fila seleccionada
+        int row = jTablePosts.getSelectedRow();
+
+        if (row != -1) {
+            Post post = (Post) jTablePosts.getValueAt(row, 2);
+            profileController.newLike(post);
+        } else {
+            JOptionPane.showMessageDialog(this, "Debes seleccionar unha publicación", "Atención", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_jButtonNewLikeActionPerformed
+
+    private void jButtonShowLastPostsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonShowLastPostsActionPerformed
+        int numberPosts = profileController.getPostsShowed();
+
+        if (numberPosts != Integer.MIN_VALUE) {
+            postsShowed = numberPosts;
+            profileController.reloadProfile();
+        }
+    }//GEN-LAST:event_jButtonShowLastPostsActionPerformed
+
+    private void jButtonChangeStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonChangeStatusActionPerformed
+        String status = JOptionPane.showInputDialog("Introduce o teu novo estado:");
+
+        if (status != null) {
+            profileController.updateProfileStatus(status);
+        }
+    }//GEN-LAST:event_jButtonChangeStatusActionPerformed
+
+    private void jButtonCloseSesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCloseSesionActionPerformed
+        dispose();
+    }//GEN-LAST:event_jButtonCloseSesionActionPerformed
+
+    private void jButtonSendMessageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSendMessageActionPerformed
+        String message = JOptionPane.showInputDialog("Introduce o texto da mensaxe:");
+
+        if (message != null) {
+            int row = jTableFriends.getSelectedRow();
+
+            if (row != -1) {
+                Profile destProfile = (Profile) jTableFriends.getValueAt(row, 0);
+                profileController.newMessage(destProfile, message);
+            } else {
+                JOptionPane.showMessageDialog(this, "Debes seleccionar unha mensaxe", "Atención", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_jButtonSendMessageActionPerformed
+
+    private void jButtonReadMessageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonReadMessageActionPerformed
+        int row = jTableMessages.getSelectedRow();
+
+        if (row != -1) {
+            Message message = (Message) jTableMessages.getValueAt(row, 3);
+
+            profileController.markMessageAsRead(message);
+
+            String from = "De: " + message.getSourceProfile();
+            String date = "Data: " + formatter.format(message.getDate());
+            String text = "Texto:";
+            String contetnText = message.getText();
+
+            JPanel panel = new JPanel(new GridLayout(4, 1, 5, 5));
+            JLabel labelFrom = new JLabel(from);
+            JLabel labelDate = new JLabel(date);
+            JLabel labelText = new JLabel(text);
+            JLabel labelContent = new JLabel(contetnText);
+
+            panel.add(labelFrom);
+            panel.add(labelDate);
+            panel.add(labelText);
+            panel.add(labelContent);
+
+            int option = JOptionPane.showOptionDialog(this, panel, "Ler mensaxe", JOptionPane.CLOSED_OPTION, JOptionPane.INFORMATION_MESSAGE, null, new String[]{"Volver", "Eliminar", "Responder"}, 0);
+
+            switch (option) {
+                case 1:
+                    jButtonDeleteMessageActionPerformed(null);
+                    break;
+                case 2:
+                    String messageSend = JOptionPane.showInputDialog("Introduce o texto da mensaxe:");
+
+                    if (messageSend != null) {
+                        profileController.newMessage(message.getSourceProfile(), messageSend);
+                    }
+                    break;
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(this, "Debes seleccionar unha mensaxe", "Atención", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_jButtonReadMessageActionPerformed
+
+    private void jButtonDeleteMessageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteMessageActionPerformed
+        int row = jTableMessages.getSelectedRow();
+
+        if (row != -1) {
+            Message message = (Message) jTableMessages.getValueAt(row, 3);
+            profileController.deleteMessage(message);
+        } else {
+            JOptionPane.showMessageDialog(this, "Debes seleccionar unha mensaxe", "Atención", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_jButtonDeleteMessageActionPerformed
+
+    private void jButtonAceptFriendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAceptFriendActionPerformed
+        int selected = jListFriendshipRequest.getSelectedIndex();
+
+        if (selected != -1) {
+            Profile profile = FriendShipArrayList.get(selected);
+            FriendShipArrayList.remove(selected);
+
+            profileController.acceptFriendshipRequest(profile);
+        } else {
+            JOptionPane.showMessageDialog(this, "Debes seleccionar unha solicitude de amizade", "Atención", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_jButtonAceptFriendActionPerformed
+
+    private void jButtonRejectFriendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRejectFriendActionPerformed
+        int selected = jListFriendshipRequest.getSelectedIndex();
+        if (selected != -1) {
+            Profile profile = FriendShipArrayList.get(selected);
+            FriendShipArrayList.remove(selected);
+
+            profileController.rejectFriendshipRequest(profile);
+        } else {
+            JOptionPane.showMessageDialog(this, "Debes seleccionar unha solicitude de amizade", "Atención", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_jButtonRejectFriendActionPerformed
+
+    private void jButtonNewFriendShipRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNewFriendShipRequestActionPerformed
+        String nameProfile = JOptionPane.showInputDialog("Introduce o nome do perfil ao que queres enviar a solicitude:");
+
+        if (nameProfile != null) {
+            profileController.newFriendshipRequest(nameProfile);
+        }
+    }//GEN-LAST:event_jButtonNewFriendShipRequestActionPerformed
+
+    private void jButtonShowBiographyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonShowBiographyActionPerformed
+        int row = jTableFriends.getSelectedRow();
+
+        if (row != -1) {
+            Profile profile = (Profile) jTableFriends.getValueAt(row, 0);
+            profileController.setShownProfile(profile);
+        } else {
+            JOptionPane.showMessageDialog(this, "Debes seleccionar un amig@", "Atención", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_jButtonShowBiographyActionPerformed
+
+    private void jButtonBackBiographyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBackBiographyActionPerformed
+        //O usuario da sesión volve a ver o seu perfil
+        profileController.setShownProfile(profileController.getSessionProfile());
+    }//GEN-LAST:event_jButtonBackBiographyActionPerformed
 
     @Override
     public int getPostsShowed() {
-        return postsShowed;
+        String numberPostsText = JOptionPane.showInputDialog("Introduce o texto do comentario");
+        int numberPosts = Integer.MIN_VALUE;
+
+        if (numberPostsText != null) {
+            try {
+                numberPosts = Integer.parseInt(numberPostsText);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Debes introducir un número", "Atención", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+
+        return numberPosts;
     }
 
     @Override
     public void showProfileMenu(Profile profile) {
+        Profile sesionProfile = profileController.getSessionProfile();
+        Profile shownProfile = profileController.getShownProfile();
+        
+        //Vexo se o usuario que inicia a sesión é o mesmo que o perfil que está vendo
+        boolean equalsProfile = sesionProfile.getName().equals(shownProfile.getName());
+        
+        jButtonSendMessageFooter.setVisible(!equalsProfile);
+        jButtonBackBiography.setVisible(!equalsProfile);
+        jButtonChangeStatus.setVisible(equalsProfile);
+
+
         //Cambiar contenido de la cabecera
         jLabelUserProfile.setText(profile.getName());
         jLabelStatusUser.setText(profile.getStatus());
+        jLabelPostShowed.setText(Integer.toString(postsShowed));
 
         //Actualizar tabla de posts
         ArrayList<Post> posts = profile.getPosts();
-        DefaultTableModel myModel = (DefaultTableModel) jTablePosts.getModel();
-        myModel.setRowCount(0);
+        DefaultTableModel modelPosts = (DefaultTableModel) jTablePosts.getModel();
+        modelPosts.setRowCount(0);
 
-        for (int i = 0; i < posts.size() && !posts.isEmpty(); i++) {
+        for (int i = 0; i < posts.size() && i < postsShowed && !posts.isEmpty(); i++) {
             Post post = posts.get(i);
-            myModel.addRow(new Object[]{
-                post.getDate(),
+            modelPosts.addRow(new Object[]{
+                formatter.format(post.getDate()),
                 post.getAuthor(),
                 post,
                 post.getProfileLikes().size()});
+        }
+
+        //Actualizar a tabla de amigos
+        ArrayList<Profile> friends = profile.getFriends();
+        DefaultTableModel modelFriends = (DefaultTableModel) jTableFriends.getModel();
+        modelFriends.setRowCount(0);
+
+        for (Profile friend : friends) {
+            modelFriends.addRow(new Object[]{
+                friend,
+                friend.getStatus()});
+        }
+
+        //Actualizar a lista de amizades
+        ArrayList<Profile> friendsRequest = profile.getFriendshipRequests();
+        String[] TextRequests = new String[friendsRequest.size()];
+
+        for (int i = 0; i < friendsRequest.size(); i++) {
+            Profile friendShip = friendsRequest.get(i);
+            FriendShipArrayList.add(friendShip);
+
+            String text = friendShip + " quere establecer amizade contigo.";
+            TextRequests[i] = text;
+        }
+
+        jListFriendshipRequest.setListData(TextRequests);
+
+        //Cargo as mensaxes privadas
+        ArrayList<Message> messages = profile.getMessages();
+        DefaultTableModel modelMessages = (DefaultTableModel) jTableMessages.getModel();
+        modelMessages.setRowCount(0);
+
+        for (Message message : messages) {
+            modelMessages.addRow(new Object[]{
+                message.isRead(),
+                formatter.format(message.getDate()),
+                message.getSourceProfile(),
+                message
+            });
         }
 
         //Fago a tabla visible
@@ -421,68 +787,70 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
 
     @Override
     public void showProfileNotFoundMessage() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        JOptionPane.showMessageDialog(this, "Non se atopou un perfil con ese nome!", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override
     public void showCannotLikeOwnPostMessage() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        JOptionPane.showMessageDialog(this, "Non se pode dar me gusta a unha publicación propia", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override
     public void showAlreadyLikedPostMessage() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        JOptionPane.showMessageDialog(this, "Non se pode facer like sobre unha publicación sobre a que xa se fixo like", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override
     public void showIsAlreadyFriendMessage(String profileName) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        JOptionPane.showMessageDialog(this, "Xa tes amizade con " + profileName, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override
     public void showExistsFrienshipRequestMessage(String profileName) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        JOptionPane.showMessageDialog(this, profileName + " xa che enviou unha solicitude de amizade!", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override
     public void showDuplicateFrienshipRequestMessage(String profileName) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        JOptionPane.showMessageDialog(this, "Xa tes unha solicitude de amizade con " + profileName, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override
     public void showConnectionErrorMessage() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        JOptionPane.showMessageDialog(this, "Erro na conexión co almacén de datos!", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override
     public void showReadErrorMessage() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        JOptionPane.showMessageDialog(this, "Erro na lectura de datos!", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override
     public void showWriteErrorMessage() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        JOptionPane.showMessageDialog(this, "Erro na escritura dos datos!", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @Override
     public void showNotFriendshipYourself() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        JOptionPane.showMessageDialog(this, "Non se pode establecer amizade contigo mesmo!", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton10;
-    private javax.swing.JButton jButton11;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
-    private javax.swing.JButton jButton9;
+    private javax.swing.JButton jButtonAceptFriend;
+    private javax.swing.JButton jButtonBackBiography;
     private javax.swing.JButton jButtonChangeStatus;
     private javax.swing.JButton jButtonCloseSesion;
+    private javax.swing.JButton jButtonDeleteMessage;
+    private javax.swing.JButton jButtonNewComment;
+    private javax.swing.JButton jButtonNewFriendShipRequest;
+    private javax.swing.JButton jButtonNewLike;
     private javax.swing.JButton jButtonNewPost;
+    private javax.swing.JButton jButtonReadMessage;
+    private javax.swing.JButton jButtonRejectFriend;
+    private javax.swing.JButton jButtonSendMessage;
+    private javax.swing.JButton jButtonSendMessageFooter;
+    private javax.swing.JButton jButtonShowBiography;
+    private javax.swing.JButton jButtonShowLastPosts;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -490,15 +858,18 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabelPostShowed;
     private javax.swing.JLabel jLabelStatusUser;
     private javax.swing.JLabel jLabelTacebookLogo;
     private javax.swing.JLabel jLabelUserProfile;
+    private javax.swing.JList<String> jListFriendshipRequest;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanelAmigos;
     private javax.swing.JPanel jPanelBiografia;
     private javax.swing.JPanel jPanelFooter;
@@ -511,15 +882,14 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JSplitPane jSplitBiografia;
     private javax.swing.JSplitPane jSplitBiografia1;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable3;
-    private javax.swing.JTable jTable4;
-    private javax.swing.JTable jTable5;
     private javax.swing.JTable jTableComments;
+    private javax.swing.JTable jTableFriends;
+    private javax.swing.JTable jTableMessages;
     private javax.swing.JTable jTablePosts;
     // End of variables declaration//GEN-END:variables
 }

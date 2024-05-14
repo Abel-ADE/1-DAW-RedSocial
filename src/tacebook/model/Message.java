@@ -147,4 +147,8 @@ public class Message {
         this.sourceProfile = sourceProfile;
     }
 
+    @Override
+    public String toString() {
+        return text;
+    }
 }

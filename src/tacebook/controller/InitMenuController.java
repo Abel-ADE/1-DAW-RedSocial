@@ -156,11 +156,6 @@ public class InitMenuController {
     public static void main(String[] args) {
            
         TacebookDB.addProfiles();
-        try {
-            System.out.println(TacebookDB.getProfiles().size());
-        } catch (PersistenceException ex) {
-            System.out.println("sen perfiles");
-        }
         
         //empeza o código
         

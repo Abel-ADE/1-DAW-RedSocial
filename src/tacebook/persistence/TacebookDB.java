@@ -71,7 +71,9 @@ public class TacebookDB {
         amigos.add(carla);
         amigos.add(carlos);
         amigos.add(marcos);
+        amigos.add(abel);
         abel.setFriends(amigos);
+        carla.setFriends(amigos);
 
         //Añadir solicitudes de amistad
         ArrayList<Profile> solicitudesAmistad = new ArrayList<>();
@@ -79,6 +81,7 @@ public class TacebookDB {
         solicitudesAmistad.add(antonio);
         solicitudesAmistad.add(sanchez);
         abel.setFriendshipRequests(solicitudesAmistad);
+        carla.setFriendshipRequests(solicitudesAmistad);
 
         //Añadir mensajes privadas
         ArrayList<Message> mensajes = new ArrayList<>();
@@ -89,6 +92,7 @@ public class TacebookDB {
         abel.setMessages(mensajes);
 
         profiles.add(abel);
+        profiles.add(carla);
     }
 
 }
