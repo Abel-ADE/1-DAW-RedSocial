@@ -28,7 +28,6 @@ public class ProfileController {
     private final ProfileView profileView;
     private Profile sessionProfile;
     private Profile shownProfile;
-    private boolean textMode;
 
     /**
      * Obten a sesión do perfil.
@@ -63,7 +62,7 @@ public class ProfileController {
      * @param textMode indica se a interfaz está en modo texto ou non.
      */
     public ProfileController(boolean textMode) {
-        this.profileView = textMode ? new TextProfileView(this) : new GUIProfileView(this);
+        this.profileView = textMode ? new TextProfileView(this) : new GUIProfileView(null,true,this);
     }
 
     /**

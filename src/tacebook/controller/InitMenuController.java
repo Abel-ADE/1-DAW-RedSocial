@@ -46,6 +46,7 @@ public class InitMenuController {
      * @param textMode indica se a interfaz está en modo texto ou non.
      */
     public InitMenuController(boolean textMode) {
+        this.textMode = textMode;
         this.initMenuView = textMode ? new TextInitMenuView(this) : new GUIInitMenuView(this);
     }
 
@@ -54,9 +55,10 @@ public class InitMenuController {
      * obxecto vista ata que devolva true.
      */
     private void init() {
+        boolean exit = false;
         do {
-            //initMenuView.showLoginMenu();
-        } while (!initMenuView.showLoginMenu());
+            exit = initMenuView.showLoginMenu();
+        } while (!exit);
     }
 
     /**
@@ -152,6 +154,16 @@ public class InitMenuController {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+           
+        TacebookDB.addProfiles();
+        try {
+            System.out.println(TacebookDB.getProfiles().size());
+        } catch (PersistenceException ex) {
+            System.out.println("sen perfiles");
+        }
+        
+        //empeza o código
+        
         InitMenuController initMenuController;
                 
         if (args.length == 1 && args[0].equals("text")) {

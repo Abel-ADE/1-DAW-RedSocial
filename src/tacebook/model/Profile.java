@@ -164,4 +164,8 @@ public class Profile {
         this.status = status;
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }

@@ -4,8 +4,14 @@
  */
 package tacebook.view;
 
+import java.awt.GridLayout;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import tacebook.controller.InitMenuController;
 
 /**
@@ -20,6 +26,8 @@ public class GUIInitMenuView implements InitMenuView {
      */
     private final InitMenuController initMenuController;
 
+    private JOptionPane registerMenu, loginMenu;
+
     /**
      * Constructor da clase.
      *
@@ -27,6 +35,29 @@ public class GUIInitMenuView implements InitMenuView {
      */
     public GUIInitMenuView(InitMenuController initMenuController) {
         this.initMenuController = initMenuController;
+    }
+
+    private int userOption(JOptionPane jOptionPane) {
+        String[] options = null;
+        if (jOptionPane.equals(registerMenu)) {
+            options = new String[]{"Aceptar", "Cancelar"};
+        }
+
+        if (jOptionPane.equals(loginMenu)) {
+            options = new String[]{"Iniciar sesión", "Rexistrarse", "Saír"};
+        }
+
+        String selectedValue = (String) jOptionPane.getValue();
+
+        if (options != null) {
+
+            for (int i = 0; i < options.length; i++) {
+                if (options[i].equals(selectedValue)) {
+                    return i;
+                }
+            }
+        }
+        return JOptionPane.CLOSED_OPTION;
     }
 
     /**
@@ -37,28 +68,34 @@ public class GUIInitMenuView implements InitMenuView {
      */
     @Override
     public boolean showLoginMenu() {
-        Scanner scanner = new Scanner(System.in);
+        String[] options = new String[]{"Iniciar sesión", "Rexistrarse", "Saír"};
+        javax.swing.JPanel panel = new JPanel(new GridLayout(2, 2, 0, 10));
+        javax.swing.JLabel userLabel = new JLabel("Nome de usuario");
+        javax.swing.JLabel passLabel = new JLabel("Contrasinal");
+        javax.swing.JTextField userField = new JTextField();
+        javax.swing.JPasswordField passField = new JPasswordField();
 
-        System.out.println("Versión GUI");
-        System.out.println("Benvid@ a tacebook - A rede social do IES Pazo da Mercé");
-        System.out.println("Escolle unha opción:");
-        System.out.println("1 - Iniciar sesión");
-        System.out.println("2 - Crear un novo perfil");
-        System.out.println("3 - Saír da aplicación");
+        panel.add(userLabel);
+        panel.add(userField);
+        panel.add(passLabel);
+        panel.add(passField);
 
-        switch (readNumber(scanner)) {
-            case 1:
-                System.out.print("Nome do usuario: ");
-                String name = scanner.nextLine();
-                System.out.print("Contrasinal: ");
-                String password = scanner.nextLine();
+        loginMenu = new JOptionPane(panel, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, options, options[0]);
+        loginMenu.createDialog(null, "Entrar en tacebook").setVisible(true);
+        int userSelected = userOption(loginMenu);
 
+        switch (userSelected) {
+            case 0:
+                String name = userField.getText();
+                String password = String.valueOf(passField.getPassword());
                 initMenuController.login(name, password);
                 break;
-            case 2:
+            case 1:
                 showRegisterMenu();
                 break;
-            case 3:
+            default:
+                loginMenu.setVisible(false);
+                loginMenu.getRootFrame().dispose();
                 return true;
         }
         return false;
@@ -69,8 +106,7 @@ public class GUIInitMenuView implements InitMenuView {
      */
     @Override
     public void showLoginErrorMessage() {
-        System.out.println();
-        System.out.println("Usuario e contrasinal incorrectos");
+        JOptionPane.showMessageDialog(loginMenu, "Usuario e contrasinal incorrectos", "Erro nos datos", JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
@@ -80,34 +116,52 @@ public class GUIInitMenuView implements InitMenuView {
      */
     @Override
     public void showRegisterMenu() {
-        Scanner scan = new Scanner(System.in);
 
-        String name, password, password2, status;
-        boolean passwordTrue = false;
+        String[] options = new String[]{"Aceptar", "Cancelar"};
+        javax.swing.JPanel panel = new JPanel(new GridLayout(4, 2, 0, 5));
+        javax.swing.JLabel userLabel = new JLabel("Nome de usuario: ");
+        javax.swing.JTextField userField = new JTextField();
+        javax.swing.JLabel passLabel = new JLabel("Contrasinal: ");
+        javax.swing.JPasswordField passField = new JPasswordField();
+        javax.swing.JLabel repeatPassLabel = new JLabel("Repito o contrasinal: ");
+        javax.swing.JPasswordField repeatPassField = new JPasswordField();
+        javax.swing.JLabel statusLabel = new JLabel("Estado: ");
+        javax.swing.JTextField statusField = new JTextField();
 
-        System.out.print("Nome do usuario: ");
-        name = scan.nextLine();
+        panel.add(userLabel);
+        panel.add(userField);
+        panel.add(passLabel);
+        panel.add(passField);
+        panel.add(repeatPassLabel);
+        panel.add(repeatPassField);
+        panel.add(statusLabel);
+        panel.add(statusField);
 
+        boolean closeWindow = false;
         do {
-            System.out.print("Contrasinal: ");
-            password = scan.nextLine();
+            registerMenu = new JOptionPane(panel, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, options, options[0]);
+            registerMenu.createDialog(loginMenu, "Rexistrarse").setVisible(true);
+            int userSelected = userOption(registerMenu);
 
-            System.out.print("Volva a introducir o contrasinal: ");
-            password2 = scan.nextLine();
+            String name, password, password2, status;
 
-            if (password.equals(password2)) {
-                passwordTrue = true;
+            if (userSelected == 0) {
+
+                name = userField.getText();
+                password = String.valueOf(passField.getPassword());
+                password2 = String.valueOf(repeatPassField.getPassword());
+                status = statusField.getText();
+
+                if (password.equals(password2)) {
+                    initMenuController.createProfile(name, password, status);
+                    closeWindow = true;
+                } else {
+                    JOptionPane.showMessageDialog(registerMenu, "Os contrasinais non coinciden!", "Erro nos datos", JOptionPane.INFORMATION_MESSAGE);
+                }
             } else {
-                System.out.println();
-                System.out.println("Os contrasinais non coinciden!");
+                closeWindow = true;
             }
-
-        } while (!passwordTrue);
-
-        System.out.print("Dime o teu estado: ");
-        status = scan.nextLine();
-
-        initMenuController.createProfile(name, password, status);
+        } while (!closeWindow);
     }
 
     /**
@@ -118,13 +172,7 @@ public class GUIInitMenuView implements InitMenuView {
      */
     @Override
     public String showNewNameMenu() {
-        Scanner scan = new Scanner(System.in);
-        System.out.println();
-
-        System.out.println("O nome do usuario xa está en uso");
-        System.out.print("Dime outro nome: ");
-
-        return scan.nextLine();
+        return JOptionPane.showInputDialog(registerMenu, "O nome do usuario xa está en uso, debes introducir outro", "Usuario xa existente", JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**

@@ -167,4 +167,11 @@ public class Post {
         this.author = author;
     }
 
+    @Override
+    public String toString() {
+        return text;
+    }
+    
+    
+
 }
