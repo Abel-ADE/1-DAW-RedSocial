@@ -4,8 +4,8 @@
  */
 package tacebook.view;
 
+import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -18,7 +18,6 @@ import javax.swing.JTable;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.basic.BasicListUI;
 import javax.swing.table.DefaultTableModel;
 import tacebook.controller.ProfileController;
 import tacebook.model.Comment;
@@ -63,7 +62,8 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
         super(parent, modal);
         this.FriendShipArrayList = new ArrayList<>();
         this.profileController = profileController;
-        this.formatter = new SimpleDateFormat("'O' dd-MM-yyy 'ás' HH:mm:ss");
+        this.formatter = new SimpleDateFormat("dd-MM-yyy 'ás' HH:mm:ss");
+
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -105,6 +105,19 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
                 int row = table.rowAtPoint(point);
                 if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
                     jButtonReadMessageActionPerformed(null);
+                }
+            }
+        });
+        
+        //Cada vez que se fai doble click nun amigo entramos no seu perfil
+        jTableFriends.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent mouseEvent) {
+                JTable table = (JTable) mouseEvent.getSource();
+                Point point = mouseEvent.getPoint();
+                int row = table.rowAtPoint(point);
+                if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
+                    jButtonShowBiographyActionPerformed(null);
                 }
             }
         });
@@ -157,10 +170,10 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
         jLabel5 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTableFriends = new javax.swing.JTable();
-        jPanel4 = new javax.swing.JPanel();
+        jPanelButtonsFriends = new javax.swing.JPanel();
         jButtonShowBiography = new javax.swing.JButton();
         jButtonSendMessage = new javax.swing.JButton();
-        jPanelSur1 = new javax.swing.JPanel();
+        jPanelSurBiografia = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jButtonAceptFriend = new javax.swing.JButton();
@@ -384,7 +397,7 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
 
         jPanelNorte1.add(jScrollPane3, java.awt.BorderLayout.CENTER);
 
-        jPanel4.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 10, 10));
+        jPanelButtonsFriends.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 10, 10));
 
         jButtonShowBiography.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/post-it.png"))); // NOI18N
         jButtonShowBiography.setText("Ver biografía");
@@ -393,7 +406,7 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
                 jButtonShowBiographyActionPerformed(evt);
             }
         });
-        jPanel4.add(jButtonShowBiography);
+        jPanelButtonsFriends.add(jButtonShowBiography);
 
         jButtonSendMessage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tacebook/view/letter.png"))); // NOI18N
         jButtonSendMessage.setText("Enviar mensaxe privada");
@@ -402,17 +415,17 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
                 jButtonSendMessageActionPerformed(evt);
             }
         });
-        jPanel4.add(jButtonSendMessage);
+        jPanelButtonsFriends.add(jButtonSendMessage);
 
-        jPanelNorte1.add(jPanel4, java.awt.BorderLayout.SOUTH);
+        jPanelNorte1.add(jPanelButtonsFriends, java.awt.BorderLayout.SOUTH);
 
         jSplitBiografia1.setTopComponent(jPanelNorte1);
 
-        jPanelSur1.setAutoscrolls(true);
-        jPanelSur1.setLayout(new java.awt.BorderLayout());
+        jPanelSurBiografia.setAutoscrolls(true);
+        jPanelSurBiografia.setLayout(new java.awt.BorderLayout());
 
         jLabel6.setText("Tes solicitudes de amizade dos seguintes perfís:");
-        jPanelSur1.add(jLabel6, java.awt.BorderLayout.PAGE_START);
+        jPanelSurBiografia.add(jLabel6, java.awt.BorderLayout.PAGE_START);
 
         jPanel5.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 10, 5));
 
@@ -443,13 +456,13 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
         });
         jPanel5.add(jButtonNewFriendShipRequest);
 
-        jPanelSur1.add(jPanel5, java.awt.BorderLayout.PAGE_END);
+        jPanelSurBiografia.add(jPanel5, java.awt.BorderLayout.PAGE_END);
 
         jScrollPane6.setViewportView(jListFriendshipRequest);
 
-        jPanelSur1.add(jScrollPane6, java.awt.BorderLayout.CENTER);
+        jPanelSurBiografia.add(jScrollPane6, java.awt.BorderLayout.CENTER);
 
-        jSplitBiografia1.setRightComponent(jPanelSur1);
+        jSplitBiografia1.setRightComponent(jPanelSurBiografia);
 
         jPanelAmigos.add(jSplitBiografia1, java.awt.BorderLayout.CENTER);
 
@@ -713,16 +726,21 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
     public void showProfileMenu(Profile profile) {
         Profile sesionProfile = profileController.getSessionProfile();
         Profile shownProfile = profileController.getShownProfile();
-        
+
         //Vexo se o usuario que inicia a sesión é o mesmo que o perfil que está vendo
         boolean equalsProfile = sesionProfile.getName().equals(shownProfile.getName());
-        
+
+        // Mostro cando non coinciden os perfis
         jButtonSendMessageFooter.setVisible(!equalsProfile);
         jButtonBackBiography.setVisible(!equalsProfile);
+        
+        //Mostro cando coinciden os perfis
         jButtonChangeStatus.setVisible(equalsProfile);
+        jPanelSurBiografia.setVisible(equalsProfile);
+        jPanelButtonsFriends.setVisible(equalsProfile);
+        jTabbedPane1.setEnabledAt(2, equalsProfile);
 
-
-        //Cambiar contenido de la cabecera
+        //Cambio o contido da cabeceira
         jLabelUserProfile.setText(profile.getName());
         jLabelStatusUser.setText(profile.getStatus());
         jLabelPostShowed.setText(Integer.toString(postsShowed));
@@ -740,6 +758,10 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
                 post,
                 post.getProfileLikes().size()});
         }
+
+        //Limpiar a tabla de comentarios
+        DefaultTableModel myModel = (DefaultTableModel) jTableComments.getModel();
+        myModel.setRowCount(0);
 
         //Actualizar a tabla de amigos
         ArrayList<Profile> friends = profile.getFriends();
@@ -770,8 +792,11 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
         ArrayList<Message> messages = profile.getMessages();
         DefaultTableModel modelMessages = (DefaultTableModel) jTableMessages.getModel();
         modelMessages.setRowCount(0);
+        
+        boolean notReadMessages = false;
 
         for (Message message : messages) {
+            notReadMessages = true;
             modelMessages.addRow(new Object[]{
                 message.isRead(),
                 formatter.format(message.getDate()),
@@ -779,6 +804,11 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
                 message
             });
         }
+        
+        //Poño en negrita se hay mensaxes sen leer
+        jTabbedPane1.getComponentAt(2).setFont(new Font("Liberation Sans", Font.BOLD, 15));
+       
+        
 
         //Fago a tabla visible
         setVisible(true);
@@ -866,19 +896,19 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanelAmigos;
     private javax.swing.JPanel jPanelBiografia;
+    private javax.swing.JPanel jPanelButtonsFriends;
     private javax.swing.JPanel jPanelFooter;
     private javax.swing.JPanel jPanelHeader;
     private javax.swing.JPanel jPanelMensaxes;
     private javax.swing.JPanel jPanelNorte;
     private javax.swing.JPanel jPanelNorte1;
     private javax.swing.JPanel jPanelSur;
-    private javax.swing.JPanel jPanelSur1;
+    private javax.swing.JPanel jPanelSurBiografia;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;

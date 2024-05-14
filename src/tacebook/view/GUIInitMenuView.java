@@ -35,6 +35,18 @@ public class GUIInitMenuView implements InitMenuView {
      */
     public GUIInitMenuView(InitMenuController initMenuController) {
         this.initMenuController = initMenuController;
+        
+        //Cambio de look and Feel
+         try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(GUIProfileView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
     }
 
     private int userOption(JOptionPane jOptionPane) {
@@ -95,7 +107,7 @@ public class GUIInitMenuView implements InitMenuView {
                 break;
             default:
                 loginMenu.setVisible(false);
-                loginMenu.getRootFrame().dispose();
+                JOptionPane.getRootFrame().dispose();
                 return true;
         }
         return false;
