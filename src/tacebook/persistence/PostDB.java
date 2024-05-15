@@ -4,6 +4,8 @@
  */
 package tacebook.persistence;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import tacebook.model.Post;
 import tacebook.model.Profile;
 
@@ -21,7 +23,20 @@ public class PostDB {
      * @throws tacebook.persistence.PersistenceException
      */
     public static void save(Post post) throws PersistenceException {
-        post.getProfile().getPosts().add(0, post);
+        String sql = "INSERT INTO Post (`text`, `date`, profile, author) VALUES(?, CURRENT_TIMESTAMP(), ?, ?);";
+        
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+            
+            pst.setString(1, post.getText());
+            pst.setString(2, post.getProfile().getName());
+            pst.setString(3, post.getAuthor().getName());
+
+            pst.executeUpdate();
+            pst.close();
+        } catch (SQLException e) {
+             throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
     }
 
     /**
@@ -32,7 +47,18 @@ public class PostDB {
      * @throws tacebook.persistence.PersistenceException
      */
     public static void saveLike(Post post, Profile profile) throws PersistenceException {
-        post.getProfileLikes().add(profile);
-    }
+        String sql = "INSERT INTO ProfileLikesPost (idPost, profile) VALUES(?, ?);";
+        
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+            
+            pst.setInt(1, post.getId());
+            pst.setString(2, profile.getName());
 
+            pst.executeUpdate();
+            pst.close();
+        } catch (SQLException e) {
+             throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
+    }
 }
