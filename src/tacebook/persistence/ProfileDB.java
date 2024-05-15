@@ -4,11 +4,13 @@
  */
 package tacebook.persistence;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import tacebook.model.Post;
 import tacebook.model.Profile;
 
 /**
@@ -31,12 +33,26 @@ public class ProfileDB {
      */
     public static Profile findByName(String name, int numberOfPosts) throws PersistenceException {
 
-        for (Profile profile : TacebookDB.getProfiles()) {
-            if (name.equals(profile.getName())) {
-                return profile;
+        String sql = "SELECT profile.name, profile.password, profile.status FROM Profile profile WHERE name = ?;";
+        Profile profile = null;
+
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+
+            pst.setString(1, name);
+
+            ResultSet rst = pst.executeQuery();
+            
+            if (rst.next()) {
+                profile = new Profile(rst.getString(1), rst.getString(2), rst.getString(3));
             }
+            
+            pst.close();
+        } catch (SQLException e) {
+            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
         }
-        return null;
+        
+        return profile;
     }
 
     /**
@@ -53,12 +69,26 @@ public class ProfileDB {
      */
     public static Profile findByNameAndPassword(String name, String password, int numberOfPosts) throws PersistenceException {
 
-        for (Profile profile : TacebookDB.getProfiles()) {
-            if (name.equals(profile.getName()) && password.equals(profile.getPassword())) {
-                return profile;
+        String sql = "SELECT profile.name, profile.password, profile.status FROM Profile profile WHERE name = ?;";
+        Profile profile = null;
+
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+
+            pst.setString(1, name);
+
+            ResultSet rst = pst.executeQuery();
+            
+            if (rst.next()) {
+                profile = new Profile(rst.getString(1), rst.getString(2), rst.getString(3));
             }
+            
+            pst.close();
+        } catch (SQLException e) {
+            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
         }
-        return null;
+        
+        return profile;
     }
 
     /**
@@ -177,7 +207,6 @@ public class ProfileDB {
         }
     }
 
-    
     public static void main(String[] args) {
         Profile carla = new Profile("carla", "123", "actualizado");
         Profile abel = new Profile("abel", "123", "actualizado");
