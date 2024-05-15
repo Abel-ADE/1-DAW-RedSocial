@@ -162,8 +162,19 @@ public class ProfileDB {
      * @throws tacebook.persistence.PersistenceException
      */
     public static void saveFriendship(Profile profile1, Profile profile2) throws PersistenceException {
-        profile1.getFriends().add(profile2);
-        profile2.getFriends().add(profile1);
+        String sql = "INSERT INTO Friend (profile1, profile2) VALUES(?, ?);";
+
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+
+            pst.setString(1, profile1.getName());
+            pst.setString(2, profile2.getName());
+
+            pst.executeUpdate();
+            pst.close();
+        } catch (SQLException e) {
+            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
     }
 
     
@@ -171,7 +182,7 @@ public class ProfileDB {
         Profile carla = new Profile("carla", "123", "actualizado");
         Profile abel = new Profile("abel", "123", "actualizado");
         try {
-            ProfileDB.removeFrienshipRequest(carla, abel);
+            ProfileDB.saveFriendship(carla, abel);
         } catch (PersistenceException ex) {
             Logger.getLogger(ProfileDB.class.getName()).log(Level.SEVERE, null, ex);
         }
