@@ -92,7 +92,20 @@ public class ProfileDB {
      * @throws tacebook.persistence.PersistenceException
      */
     public static void update(Profile profile) throws PersistenceException {
+        String sql = "UPDATE Profile SET password=?, status=? WHERE name=?;";
 
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+
+            pst.setString(1, profile.getPassword());
+            pst.setString(2, profile.getStatus());
+            pst.setString(3, profile.getName());
+
+            pst.executeUpdate();
+            pst.close();
+        } catch (SQLException e) {
+            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
     }
 
     /**
@@ -131,9 +144,9 @@ public class ProfileDB {
 
     
     public static void main(String[] args) {
-        Profile profile = new Profile("carla", "123", "ola");
+        Profile profile = new Profile("carla", "123", "actualizado");
         try {
-            ProfileDB.save(profile);
+            ProfileDB.update(profile);
         } catch (PersistenceException ex) {
             Logger.getLogger(ProfileDB.class.getName()).log(Level.SEVERE, null, ex);
         }
