@@ -5,7 +5,6 @@
 package tacebook.controller;
 
 import java.util.Date;
-import java.util.GregorianCalendar;
 import tacebook.model.Comment;
 import tacebook.persistence.CommentDB;
 import tacebook.model.Message;
@@ -60,11 +59,10 @@ public class ProfileController {
 
     /**
      * Constructor da clase.
-     *
      * @param textMode indica se a interfaz está en modo texto ou non.
      */
     public ProfileController(boolean textMode) {
-        this.profileView = textMode ? new TextProfileView(this) : new GUIProfileView(null, true, this);
+        this.profileView = textMode ? new TextProfileView(this) : new GUIProfileView(null,true,this);
     }
 
     /**
@@ -126,10 +124,10 @@ public class ProfileController {
      * @param destProfile o perfil que fixo a publicación.
      */
     public void newPost(String text, Profile destProfile) {
-        GregorianCalendar calendar = new GregorianCalendar();
-        java.sql.Date date = new java.sql.Date(calendar.getTimeInMillis());
+        // Obtener la fecha actual en milisegundos
+        long currentTime = System.currentTimeMillis();
 
-        Post post = new Post(0, date, text, destProfile, sessionProfile);
+        Post post = new Post(0, new Date(currentTime), text, destProfile, sessionProfile);
 
         try {
             PostDB.save(post);
@@ -147,10 +145,10 @@ public class ProfileController {
      * @param commentText o texto do comentario.
      */
     public void newComment(Post post, String commentText) {
-         GregorianCalendar calendar = new GregorianCalendar();
-        java.sql.Date date = new java.sql.Date(calendar.getTimeInMillis());
+        // Obtener la fecha actual en milisegundos
+        long currentTime = System.currentTimeMillis();
 
-        Comment comment = new Comment(0, date, commentText, sessionProfile, post);
+        Comment comment = new Comment(0, new Date(currentTime), commentText, sessionProfile, post);
 
         try {
             CommentDB.save(comment);
@@ -257,10 +255,10 @@ public class ProfileController {
      * @param text o testo da mensaxe.
      */
     public void newMessage(Profile destProfile, String text) {
-        GregorianCalendar calendar = new GregorianCalendar();
-        java.sql.Date date = new java.sql.Date(calendar.getTimeInMillis());
+        // Obtener la fecha actual en milisegundos
+        long currentTime = System.currentTimeMillis();
 
-        Message message = new Message(0, text, date, false, destProfile, sessionProfile);
+        Message message = new Message(0, text, new Date(currentTime), false, destProfile, sessionProfile);
 
         try {
             MessageDB.save(message);
@@ -293,7 +291,7 @@ public class ProfileController {
      */
     public void markMessageAsRead(Message message) {
         message.setRead(true);
-
+        
         try {
             MessageDB.update(message);
         } catch (PersistenceException ex) {
