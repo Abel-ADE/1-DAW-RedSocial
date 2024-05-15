@@ -4,6 +4,11 @@
  */
 package tacebook.persistence;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import tacebook.model.Profile;
 
 /**
@@ -64,7 +69,20 @@ public class ProfileDB {
      */
     public static void save(Profile profile) throws PersistenceException {
 
-        TacebookDB.getProfiles().add(profile);
+        String sql = "INSERT INTO Profile (name, password, status) VALUES(?, ?, ?);";
+
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+
+            pst.setString(1, profile.getName());
+            pst.setString(2, profile.getPassword());
+            pst.setString(3, profile.getStatus());
+
+            pst.executeUpdate();
+            pst.close();
+        } catch (SQLException e) {
+            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
     }
 
     /**
@@ -111,4 +129,13 @@ public class ProfileDB {
         profile2.getFriends().add(profile1);
     }
 
+    
+    public static void main(String[] args) {
+        Profile profile = new Profile("carla", "123", "ola");
+        try {
+            ProfileDB.save(profile);
+        } catch (PersistenceException ex) {
+            Logger.getLogger(ProfileDB.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }
