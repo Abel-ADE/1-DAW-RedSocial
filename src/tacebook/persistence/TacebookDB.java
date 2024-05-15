@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import org.mariadb.jdbc.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.ResultSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tacebook.model.Profile;
@@ -18,13 +20,13 @@ import tacebook.model.Profile;
  * @author Abel Iglesias Moure
  */
 public class TacebookDB {
-    
+
     // Referencia á conexión coa BD
     private static Connection connection = null;
 
-    public final static String URL = "URL";
-    public final static String USER = "user";
-    public final static String PASSWORD = "password";
+    public final static String URL = "jdbc:mariadb://localhost:33006/tacebook";
+    public final static String USER = "admin";
+    public final static String PASSWORD = "daw2pass";
 
     /**
      * Obtén unha única conexión coa base de datos, abríndoa se é necesario
@@ -52,7 +54,28 @@ public class TacebookDB {
      */
     public static ArrayList<Profile> getProfiles() throws PersistenceException {
 
-        return null;
+        ArrayList<Profile> profiles = new ArrayList<>();
+
+        String sql = "SELECT name, password, status FROM Profile;";
+        Statement st = TacebookDB.getConnection().createStatement();
+        
+        try {
+            ResultSet rst = st.executeQuery(sql);
+            while (rst.next()) {
+                String name = rst.getString(1);
+                String password = rst.getString(2);
+                String status = rst.getString(3);
+
+                Profile profile = new Profile(name, password, status);
+                profiles.add(profile);
+            }
+
+            st.close();
+        } catch (SQLException e) {
+            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
+
+        return profiles;
     }
 
     /**
