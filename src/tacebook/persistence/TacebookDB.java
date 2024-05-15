@@ -18,9 +18,7 @@ import tacebook.model.Profile;
  * @author Abel Iglesias Moure
  */
 public class TacebookDB {
-
-    private static ArrayList<Profile> profiles = new ArrayList<>();
-
+    
     // Referencia á conexión coa BD
     private static Connection connection = null;
 
@@ -54,7 +52,7 @@ public class TacebookDB {
      */
     public static ArrayList<Profile> getProfiles() throws PersistenceException {
 
-        return profiles;
+        return null;
     }
 
     /**
