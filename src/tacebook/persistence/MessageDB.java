@@ -4,7 +4,13 @@
  */
 package tacebook.persistence;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import tacebook.model.Message;
+import tacebook.model.Profile;
 
 /**
  * Onde implementaremos a persistencia dos obxectos da clase mensaje.
@@ -18,7 +24,22 @@ public class MessageDB {
      * @throws tacebook.persistence.PersistenceException
      */
     public static void save(Message message) throws PersistenceException{
-        message.getDestProfile().getMessages().add(message);
+        String sql = "INSERT INTO Message (`text`, `date`, isRead, source, destination) VALUES(?, ?, ?, ?, ?);";
+        
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+            
+            pst.setString(1, message.getText());
+            pst.setDate(2, (Date) message.getDate());
+            pst.setBoolean(3, message.isRead());
+            pst.setString(4, message.getSourceProfile().getName());
+            pst.setString(5, message.getDestProfile().getName());
+
+            pst.executeUpdate();
+            pst.close();
+        } catch (SQLException e) {
+             throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
     }
     
     /**
