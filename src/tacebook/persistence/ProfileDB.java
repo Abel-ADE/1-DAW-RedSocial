@@ -116,7 +116,19 @@ public class ProfileDB {
      * @throws tacebook.persistence.PersistenceException
      */
     public static void saveFrienshipRequest(Profile destProfile, Profile sourceProfile) throws PersistenceException {
-        destProfile.getFriendshipRequests().add(sourceProfile);
+        String sql = "INSERT INTO FriendRequest (sourceProfile, destinationProfile) VALUES(?, ?);";
+
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+
+            pst.setString(1, sourceProfile.getName());
+            pst.setString(2, destProfile.getName());
+
+            pst.executeUpdate();
+            pst.close();
+        } catch (SQLException e) {
+            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
     }
 
     /**
@@ -127,7 +139,19 @@ public class ProfileDB {
      * @throws tacebook.persistence.PersistenceException
      */
     public static void removeFrienshipRequest(Profile destProfile, Profile sourceProfile) throws PersistenceException {
-        destProfile.getFriendshipRequests().remove(sourceProfile);
+        String sql = "DELETE FROM FriendRequest WHERE sourceProfile=? AND destinationProfile=?;";
+
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+
+            pst.setString(1, sourceProfile.getName());
+            pst.setString(2, destProfile.getName());
+
+            pst.executeUpdate();
+            pst.close();
+        } catch (SQLException e) {
+            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
     }
 
     /**
@@ -144,9 +168,10 @@ public class ProfileDB {
 
     
     public static void main(String[] args) {
-        Profile profile = new Profile("carla", "123", "actualizado");
+        Profile carla = new Profile("carla", "123", "actualizado");
+        Profile abel = new Profile("abel", "123", "actualizado");
         try {
-            ProfileDB.update(profile);
+            ProfileDB.removeFrienshipRequest(carla, abel);
         } catch (PersistenceException ex) {
             Logger.getLogger(ProfileDB.class.getName()).log(Level.SEVERE, null, ex);
         }
