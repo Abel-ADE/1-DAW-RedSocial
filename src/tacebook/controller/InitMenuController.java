@@ -154,11 +154,7 @@ public class InitMenuController {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-           
-        TacebookDB.addProfiles();
-        
-        //empeza o código
-        
+                   
         InitMenuController initMenuController;
                 
         if (args.length == 1 && args[0].equals("text")) {

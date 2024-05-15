@@ -5,10 +5,11 @@
 package tacebook.persistence;
 
 import java.util.ArrayList;
-import java.util.Date;
-import tacebook.model.Comment;
-import tacebook.model.Message;
-import tacebook.model.Post;
+import org.mariadb.jdbc.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import tacebook.model.Profile;
 
 /**
@@ -19,6 +20,31 @@ import tacebook.model.Profile;
 public class TacebookDB {
 
     private static ArrayList<Profile> profiles = new ArrayList<>();
+
+    // Referencia á conexión coa BD
+    private static Connection connection = null;
+
+    public final static String URL = "URL";
+    public final static String USER = "user";
+    public final static String PASSWORD = "password";
+
+    /**
+     * Obtén unha única conexión coa base de datos, abríndoa se é necesario
+     *
+     * @return Conexión coa base de datos aberta
+     * @throws PersistenceException Se se produce un erro ao conectar coa BD
+     */
+    public static Connection getConnection() throws PersistenceException {
+        // Obtemos unha conexión coa base de datos
+        try {
+            if (connection == null) {
+                connection = (Connection) DriverManager.getConnection(URL, USER, PASSWORD);
+            }
+            return connection;
+        } catch (SQLException e) {
+            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
+    }
 
     /**
      * Devolve a lista de perfis do programa.
@@ -32,67 +58,17 @@ public class TacebookDB {
     }
 
     /**
-     * Método para pechar a conexión coa base de datos, que de momento non fará
-     * nada.
+     * Pecha a conexión coa base de datos.
+     *
      */
     public static void close() {
-
-    }
-
-    public static void addProfiles() {
-        Profile abel = new Profile("abel", "123", "Programando");
-        //Amigos de abel
-        Profile carlos = new Profile("carlos", "123", "Programando");
-        Profile marcos = new Profile("marcos", "123", "Programando");
-        Profile carla = new Profile("carla", "123", "Programando");
-        //Solicitudes de amistad
-        Profile maria = new Profile("maria", "123", "Programando");
-        Profile antonio = new Profile("antonio", "123", "Programando");
-        Profile sanchez = new Profile("sanchez", "123", "Programando");
-
-        //Crear posts con comentarios
-        ArrayList<Post> posts = new ArrayList<>();
-        ArrayList<Comment> comentarios = null;
-        for (int i = 0; i < 10; i++) {
-            Post post = new Post(i, new Date(), ("Post: " + i), abel, abel);
-            for (int j = 0; j < 5; j++) {
-                comentarios = new ArrayList<>();
-                Comment comment = new Comment(i, new Date(), ("Comentario: " + i), abel, post);
-                comentarios.add(comment);
+        // Obtemos unha conexión coa base de datos
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(TacebookDB.class.getName()).log(Level.SEVERE, null, ex);
             }
-            post.setComments(comentarios);
-            posts.add(post);
-
         }
-        abel.setPosts(posts);
-
-        //Añadir amigos
-        ArrayList<Profile> amigos = new ArrayList<>();
-        amigos.add(carla);
-        amigos.add(carlos);
-        amigos.add(marcos);
-        amigos.add(abel);
-        abel.setFriends(amigos);
-        carla.setFriends(amigos);
-
-        //Añadir solicitudes de amistad
-        ArrayList<Profile> solicitudesAmistad = new ArrayList<>();
-        solicitudesAmistad.add(maria);
-        solicitudesAmistad.add(antonio);
-        solicitudesAmistad.add(sanchez);
-        abel.setFriendshipRequests(solicitudesAmistad);
-        carla.setFriendshipRequests(solicitudesAmistad);
-
-        //Añadir mensajes privadas
-        ArrayList<Message> mensajes = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            Message message = new Message(0, "ola", new Date(), false, abel, carla);
-            mensajes.add(message);
-        }
-        abel.setMessages(mensajes);
-
-        profiles.add(abel);
-        profiles.add(carla);
     }
-
 }
