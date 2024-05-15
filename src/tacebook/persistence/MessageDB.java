@@ -48,7 +48,23 @@ public class MessageDB {
      * @throws tacebook.persistence.PersistenceException
      */
     public static void update(Message message) throws PersistenceException{
+         String sql = "UPDATE Message SET `text`=?, `date`=?, isRead=?, source=?, destination=? WHERE id=?;";
         
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+            
+            pst.setString(1, message.getText());
+            pst.setDate(2, (Date) message.getDate());
+            pst.setBoolean(3, message.isRead());
+            pst.setString(4, message.getSourceProfile().getName());
+            pst.setString(5, message.getDestProfile().getName());
+            pst.setInt(6, message.getId());
+
+            pst.executeUpdate();
+            pst.close();
+        } catch (SQLException e) {
+             throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
     }
     
     /**
@@ -60,4 +76,11 @@ public class MessageDB {
         message.getDestProfile().getMessages().remove(message);
     }
     
+    public static void main(String[] args) {
+        try {
+            MessageDB.update(new Message(7, "actualizando...", new java.sql.Date(0, 0, 0), false, new Profile("abel", null, null), new Profile("abel", null, null)));
+        } catch (PersistenceException ex) {
+            Logger.getLogger(MessageDB.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }
