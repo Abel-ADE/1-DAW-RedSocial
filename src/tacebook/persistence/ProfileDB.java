@@ -84,8 +84,8 @@ public class ProfileDB {
             ResultSet rs = pst.executeQuery();
 
             // Listas para almacenar los objetos
-            ArrayList<Post> posts = new ArrayList<>();
-            ArrayList<Comment> comments = new ArrayList<>();
+            HashSet<Post> posts = new HashSet<>();
+            HashSet<Comment> comments = new HashSet<>();
 
             // Construir objeto de tipo Usuario
             if (rs.next()) {
@@ -105,8 +105,11 @@ public class ProfileDB {
                 String nameProfile = rs.getString(7);
                 String nameAuthorPost = rs.getString(8);
 
-                Post post = new Post(idPost, datePost, textPost, new Profile(nameProfile, null, null), new Profile(nameAuthorPost, null, null));
-                posts.add(post);
+                if (textPost != null) {
+                    Post post = new Post(idPost, datePost, textPost, new Profile(nameProfile, null, null), new Profile(nameAuthorPost, null, null));
+                    posts.add(post);
+                }
+
             }
 
             // Construir objetos Comentario
@@ -118,19 +121,21 @@ public class ProfileDB {
                 String nameAuthorComment = rs.getString(12);
                 int idPost = rs.getInt(13);
 
-                Comment comment = new Comment(idComment, dateComment, textComment, new Profile(nameAuthorComment, null, null), new Post(idPost, null, null, null, null));
-                comments.add(comment);
+                if (textComment != null) {
+                    Comment comment = new Comment(idComment, dateComment, textComment, new Profile(nameAuthorComment, null, null), new Post(idPost, null, null, null, null));
+                    comments.add(comment);
+                }
             }
 
             // Enlazar posts y comments con el usuario
-            for (Post publicacion : posts) {
+            for (Post post : posts) {
 
-                if (profile.getName().equals(publicacion.getProfile().getName())) {
-                    profile.getPosts().add(publicacion);
+                if (profile.getName().equals(post.getProfile().getName())) {
+                    profile.getPosts().add(post);
 
-                    for (Comment comentario : comments) {
-                        if (comentario.getPost().getId() == publicacion.getId()) {
-                            publicacion.getComments().add(comentario);
+                    for (Comment comment : comments) {
+                        if (comment.getPost().getId() == post.getId()) {
+                            post.getComments().add(comment);
                         }
                     }
                 }
@@ -144,25 +149,23 @@ public class ProfileDB {
         }
 
         //Añadimos a lista de amigos dese usuario
-         ArrayList<Profile> friends = getFriendsToBD(profile);
-         profile.setFriends(friends);
-         
-         
+        ArrayList<Profile> friends = getFriendsToBD(profile);
+        profile.setFriends(friends);
+
         ArrayList<Message> messages = getMessagesToBD(profile);
         profile.setMessages(messages);
-        
-        
+
         //Añadimos a lista de peticions de amizade dese usuario
         ArrayList<Profile> friendsRequests = getFriendsRequestToBD(profile);
         profile.setFriendshipRequests(friendsRequests);
-        
+
         return profile;
     }
 
     private static ArrayList<Profile> getFriendsToBD(Profile profile) throws PersistenceException {
 
         ArrayList<Profile> friends = new ArrayList<>();
-        
+
         String sql = "SELECT DISTINCT name, status \n"
                 + "FROM Profile p \n"
                 + "WHERE name IN (SELECT f.profile1 \n"
@@ -179,7 +182,7 @@ public class ProfileDB {
             pst.setString(2, profile.getName());
 
             ResultSet rst = pst.executeQuery();
-            
+
             //Recorro o resultado e devolvo a lista de amigos
             while (rst.next()) {
                 String nameFriend = rst.getString(1);
@@ -200,7 +203,7 @@ public class ProfileDB {
     private static ArrayList<Message> getMessagesToBD(Profile profile) throws PersistenceException {
 
         ArrayList<Message> messages = new ArrayList<>();
-        
+
         String sql = "SELECT id, `text`, `date`, isRead, source, destination\n"
                 + "   FROM Message\n"
                 + "   WHERE destination = ? \n"
@@ -235,7 +238,7 @@ public class ProfileDB {
     private static ArrayList<Profile> getFriendsRequestToBD(Profile profile) throws PersistenceException {
 
         ArrayList<Profile> friendsRequests = new ArrayList<>();
-        
+
         String sql = "SELECT sourceProfile\n"
                 + "FROM FriendRequest fr\n"
                 + "WHERE fr.destinationProfile = ? ;";
