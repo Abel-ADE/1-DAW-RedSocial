@@ -4,7 +4,6 @@
  */
 package tacebook.persistence;
 
-import java.sql.Date;
 import tacebook.model.Comment;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -24,15 +23,14 @@ public class CommentDB {
      */
     public static void save(Comment comment) throws PersistenceException {
 
-        String sql = "INSERT INTO Comment (`text`, `date`, author, idPost) VALUES (?, ?, ?, ?);";
+        String sql = "INSERT INTO Comment (`text`, `date`, author, idPost) VALUES (?, CURRENT_TIMESTAMP(), ?, ?);";
         
         try {
             PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
             
             pst.setString(1, comment.getText());
-            pst.setDate(2, (Date) comment.getDate());
-            pst.setString(3, comment.getSourceProfile().getName());
-            pst.setInt(4, comment.getPost().getId());
+            pst.setString(2, comment.getSourceProfile().getName());
+            pst.setInt(3, comment.getPost().getId());
 
             pst.executeUpdate();
             pst.close();

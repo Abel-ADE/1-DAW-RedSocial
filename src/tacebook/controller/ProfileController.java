@@ -5,6 +5,7 @@
 package tacebook.controller;
 
 import java.util.Date;
+import java.util.GregorianCalendar;
 import tacebook.model.Comment;
 import tacebook.persistence.CommentDB;
 import tacebook.model.Message;
@@ -147,7 +148,7 @@ public class ProfileController {
     public void newComment(Post post, String commentText) {
         // Obtener la fecha actual en milisegundos
         long currentTime = System.currentTimeMillis();
-
+        
         Comment comment = new Comment(0, new Date(currentTime), commentText, sessionProfile, post);
 
         try {

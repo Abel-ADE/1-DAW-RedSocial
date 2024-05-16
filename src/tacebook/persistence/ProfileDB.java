@@ -7,8 +7,12 @@ package tacebook.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import tacebook.model.Comment;
+import tacebook.model.Post;
 import tacebook.model.Profile;
 
 /**
@@ -31,26 +35,7 @@ public class ProfileDB {
      */
     public static Profile findByName(String name, int numberOfPosts) throws PersistenceException {
 
-        String sql = "SELECT profile.name, profile.password, profile.status FROM Profile profile WHERE name = ?;";
-        Profile profile = null;
-
-        try {
-            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
-
-            pst.setString(1, name);
-
-            ResultSet rst = pst.executeQuery();
-            
-            if (rst.next()) {
-                profile = new Profile(rst.getString(1), rst.getString(2), rst.getString(3));
-            }
-            
-            pst.close();
-        } catch (SQLException e) {
-            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
-        }
-        
-        return profile;
+        return getProfile(name, null, numberOfPosts);
     }
 
     /**
@@ -67,25 +52,121 @@ public class ProfileDB {
      */
     public static Profile findByNameAndPassword(String name, String password, int numberOfPosts) throws PersistenceException {
 
-        String sql = "SELECT profile.name, profile.password, profile.status FROM Profile profile WHERE name = ?;";
+        return getProfile(name, password, numberOfPosts);
+    }
+
+    private static Profile getProfile(String name, String password, int numberOfPosts) throws PersistenceException {
+
+        String sqlWhere = password != null ? "WHERE name = ? AND password = ? " : "WHERE name = ?";
+
+        String sql = "SELECT profile.name, profile.password, profile.status, "
+                + "post.id, post.`date`, post.`text`, post.profile, post.author, "
+                + "comment.id as comment_id, comment.`date`, comment.`text`, comment.author, comment.idPost  "
+                + "FROM Profile profile "
+                + "LEFT JOIN Post post ON post.author = profile.name "
+                + "LEFT JOIN Comment comment ON comment.idPost = post.id   "
+                + sqlWhere
+                + "ORDER BY profile.name, post.`date` DESC , comment.`date` DESC";
+
         Profile profile = null;
 
         try {
+
             PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
 
             pst.setString(1, name);
+            if (password != null) {
+                pst.setString(2, password);
+            }
 
             ResultSet rst = pst.executeQuery();
-            
-            if (rst.next()) {
-                profile = new Profile(rst.getString(1), rst.getString(2), rst.getString(3));
+
+            while (rst.next()) {
+
+                if (profile == null) {
+                    //Variables para o perfil
+                    String nameProfile = rst.getString(1);
+                    String passwordProfile = rst.getString(2);
+                    String statusProfile = rst.getString(3);
+
+                    //Creo o perfil
+                    profile = new Profile(nameProfile, passwordProfile, statusProfile);
+
+                    System.out.println("Perfil: " + profile + " / Contador: " + rst.getRow());
+                }
+
+                Post lastPost = null;
+
+                //Añado nese perfil os post relacionados con el
+                //do {
+                //Variables que vamos a usar na creación de cada post
+                int idPost = rst.getInt(4);
+                Date datePost = rst.getDate(5);
+                String textPost = rst.getString(6);
+                Profile authorPost = new Profile(rst.getString(8), null, null);
+
+                Post post = new Post(idPost, datePost, textPost, profile, authorPost);
+
+                //Se o post é distinto o añado o perfil 
+                if (lastPost == null || lastPost.getId() != post.getId()) {
+                    lastPost = post;
+                    profile.getPosts().add(post);
+
+                    System.out.println("Post: " + post + " / Contador: " + rst.getRow());
+                }
+
+                //Comentarios
+                Comment lastComment = null;
+                boolean exitComments = false;
+
+                //Añado nese perfil os post relacionados con el
+                while (!exitComments) {
+                    //Se hay comentarios para ese post os añado
+                    if (rst.getString(12) != null) {
+
+                        //Variables que vamos a usar na creación de cada comentario
+                        int idComment = rst.getInt(9);
+                        Date dateComment = rst.getDate(10);
+                        String textComment = rst.getString(11);
+                        Profile authorComment = new Profile(rst.getString(12), null, null);
+
+                        //Creo o comentario
+                        Comment comment = new Comment(idComment, dateComment, textComment, authorComment, lastPost);
+
+                        //Se o comentario é distinto ao anterior o añado o perfil 
+                        if (lastComment == null || lastComment.getId() != comment.getId()) {
+                            lastComment = comment;
+                            post.getComments().add(comment);
+
+                            System.out.println("Comentario: " + comment.getText() + " / Contador: " + rst.getRow());
+                            if (!rst.next()) {
+                                rst.previous();
+                                exitComments = true;
+                            }
+                            System.out.println("A por el siguiente comentario... " + " / Contador: " + rst.getRow());
+                        }
+
+                        if (rst.getString(12) == null) {
+                            rst.previous();
+                            exitComments = true;
+
+                            System.out.println("saliendo... " + " / Contador: " + rst.getRow());
+                        }
+                    } else {
+                        exitComments = true;
+                    }
+                }
+                //Fin comentarios
+
+                // } while (rst.next());
             }
-            
+
             pst.close();
         } catch (SQLException e) {
+            Logger.getLogger(ProfileDB.class.getName()).log(Level.SEVERE, null, e);
             throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
         }
-        
+
         return profile;
     }
 
@@ -202,16 +283,6 @@ public class ProfileDB {
             pst.close();
         } catch (SQLException e) {
             throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
-        }
-    }
-
-    public static void main(String[] args) {
-        Profile carla = new Profile("carla", "123", "actualizado");
-        Profile abel = new Profile("abel", "123", "actualizado");
-        try {
-            ProfileDB.saveFriendship(carla, abel);
-        } catch (PersistenceException ex) {
-            Logger.getLogger(ProfileDB.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
