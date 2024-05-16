@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tacebook.model.Comment;
+import tacebook.model.Message;
 import tacebook.model.Post;
 import tacebook.model.Profile;
 
@@ -167,7 +168,82 @@ public class ProfileDB {
             throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
         }
 
+        Profile returnProfile = getFriendsToBD(profile);
+        returnProfile = getMessagesToBD(returnProfile);
+
+        return returnProfile;
+    }
+
+    private static Profile getFriendsToBD(Profile profile) throws PersistenceException {
+
+        String sql = "SELECT DISTINCT name, status \n"
+                + "FROM Profile p \n"
+                + "WHERE name IN (SELECT f.profile1 \n"
+                + "		FROM Friend f \n"
+                + "		WHERE f.profile2 = ?)\n"
+                + "	OR name IN (SELECT f.profile2 \n"
+                + "		FROM Friend f \n"
+                + "		WHERE f.profile1 = ?)";
+
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+
+            pst.setString(1, profile.getName());
+            pst.setString(2, profile.getName());
+
+            ResultSet rst = pst.executeQuery();
+
+            while (rst.next()) {
+                String nameFriend = rst.getString(1);
+                String statusFriend = rst.getString(2);
+                Profile friend = new Profile(nameFriend, null, statusFriend);
+                profile.getFriends().add(friend);
+            }
+
+            pst.close();
+        } catch (SQLException e) {
+            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
+
         return profile;
+    }
+
+    private static Profile getMessagesToBD(Profile profile) throws PersistenceException {
+
+        String sql = "SELECT id, `text`, `date`, isRead, source, destination\n"
+                + "   FROM Message\n"
+                + "   WHERE destination = ? \n"
+                + "   ORDER BY `date` DESC ;";
+
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+
+            pst.setString(1, profile.getName());
+            
+            ResultSet rst = pst.executeQuery();
+
+            while (rst.next()) {
+                int idMessage = rst.getInt(1);
+                String textMessage = rst.getString(2);
+                Date dateMessage = rst.getDate(3);
+                Boolean isReadMessage = rst.getBoolean(4);
+                Profile sourceProfileMessage = new Profile(rst.getString(5), null, null);
+                
+                Message message = new Message(idMessage, textMessage, dateMessage, isReadMessage, profile, sourceProfileMessage);
+                profile.getMessages().add(message);
+            }
+
+            pst.close();
+        } catch (SQLException e) {
+            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
+
+        return profile;
+    }
+
+    private static Profile getFriendRequestToBD(Profile profile) throws PersistenceException {
+
+        return null;
     }
 
     /**
