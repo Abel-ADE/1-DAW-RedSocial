@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tacebook.model.Comment;
@@ -80,102 +81,88 @@ public class ProfileDB {
                 pst.setString(2, password);
             }
 
-            ResultSet rst = pst.executeQuery();
+            ResultSet rs = pst.executeQuery();
 
-            while (rst.next()) {
+            // Listas para almacenar los objetos
+            ArrayList<Post> posts = new ArrayList<>();
+            ArrayList<Comment> comments = new ArrayList<>();
 
-                if (profile == null) {
-                    //Variables para o perfil
-                    String nameProfile = rst.getString(1);
-                    String passwordProfile = rst.getString(2);
-                    String statusProfile = rst.getString(3);
+            // Construir objeto de tipo Usuario
+            if (rs.next()) {
+                String nameUser = rs.getString(1);
+                String pass = rs.getString(2);
+                String status = rs.getString(3);
 
-                    //Creo o perfil
-                    profile = new Profile(nameProfile, passwordProfile, statusProfile);
+                profile = new Profile(nameUser, pass, status);
+            }
 
-                    System.out.println("Perfil: " + profile + " / Contador: " + rst.getRow());
-                }
+            // Construir objetos Publicacion
+            rs.beforeFirst(); // Reiniciar el cursor del ResultSet
+            while (rs.next()) {
+                int idPost = rs.getInt(4);
+                Date datePost = rs.getDate(5);
+                String textPost = rs.getString(6);
+                String nameProfile = rs.getString(7);
+                String nameAuthorPost = rs.getString(8);
 
-                Post lastPost = null;
+                Post post = new Post(idPost, datePost, textPost, new Profile(nameProfile, null, null), new Profile(nameAuthorPost, null, null));
+                posts.add(post);
+            }
 
-                //Añado nese perfil os post relacionados con el
-                //do {
-                //Variables que vamos a usar na creación de cada post
-                int idPost = rst.getInt(4);
-                Date datePost = rst.getDate(5);
-                String textPost = rst.getString(6);
-                Profile authorPost = new Profile(rst.getString(8), null, null);
+            // Construir objetos Comentario
+            rs.beforeFirst(); // Reiniciar el cursor del ResultSet
+            while (rs.next()) {
+                int idComment = rs.getInt(9);
+                Date dateComment = rs.getDate(10);
+                String textComment = rs.getString(11);
+                String nameAuthorComment = rs.getString(12);
+                int idPost = rs.getInt(13);
 
-                Post post = new Post(idPost, datePost, textPost, profile, authorPost);
+                Comment comment = new Comment(idComment, dateComment, textComment, new Profile(nameAuthorComment, null, null), new Post(idPost, null, null, null, null));
+                comments.add(comment);
+            }
 
-                //Se o post é distinto o añado o perfil 
-                if (lastPost == null || lastPost.getId() != post.getId()) {
-                    lastPost = post;
-                    profile.getPosts().add(post);
+            // Enlazar posts y comments con el usuario
+            for (Post publicacion : posts) {
 
-                    System.out.println("Post: " + post + " / Contador: " + rst.getRow());
-                }
+                if (profile.getName().equals(publicacion.getProfile().getName())) {
+                    profile.getPosts().add(publicacion);
 
-                //Comentarios
-                Comment lastComment = null;
-                boolean exitComments = false;
-
-                //Añado nese perfil os post relacionados con el
-                while (!exitComments) {
-                    //Se hay comentarios para ese post os añado
-                    if (rst.getString(12) != null) {
-
-                        //Variables que vamos a usar na creación de cada comentario
-                        int idComment = rst.getInt(9);
-                        Date dateComment = rst.getDate(10);
-                        String textComment = rst.getString(11);
-                        Profile authorComment = new Profile(rst.getString(12), null, null);
-
-                        //Creo o comentario
-                        Comment comment = new Comment(idComment, dateComment, textComment, authorComment, lastPost);
-
-                        //Se o comentario é distinto ao anterior o añado o perfil 
-                        if (lastComment == null || lastComment.getId() != comment.getId()) {
-                            lastComment = comment;
-                            post.getComments().add(comment);
-
-                            System.out.println("Comentario: " + comment.getText() + " / Contador: " + rst.getRow());
-                            if (!rst.next()) {
-                                rst.previous();
-                                exitComments = true;
-                            }
-                            System.out.println("A por el siguiente comentario... " + " / Contador: " + rst.getRow());
+                    for (Comment comentario : comments) {
+                        if (comentario.getPost().getId() == publicacion.getId()) {
+                            publicacion.getComments().add(comentario);
                         }
-
-                        if (rst.getString(12) == null) {
-                            rst.previous();
-                            exitComments = true;
-
-                            System.out.println("saliendo... " + " / Contador: " + rst.getRow());
-                        }
-                    } else {
-                        exitComments = true;
                     }
                 }
-                //Fin comentarios
-
-                // } while (rst.next());
             }
 
             pst.close();
+
         } catch (SQLException e) {
             Logger.getLogger(ProfileDB.class.getName()).log(Level.SEVERE, null, e);
             throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
         }
 
-        Profile returnProfile = getFriendsToBD(profile);
-        returnProfile = getMessagesToBD(returnProfile);
-
-        return returnProfile;
+        //Añadimos a lista de amigos dese usuario
+         ArrayList<Profile> friends = getFriendsToBD(profile);
+         profile.setFriends(friends);
+         
+         
+        ArrayList<Message> messages = getMessagesToBD(profile);
+        profile.setMessages(messages);
+        
+        
+        //Añadimos a lista de peticions de amizade dese usuario
+        ArrayList<Profile> friendsRequests = getFriendsRequestToBD(profile);
+        profile.setFriendshipRequests(friendsRequests);
+        
+        return profile;
     }
 
-    private static Profile getFriendsToBD(Profile profile) throws PersistenceException {
+    private static ArrayList<Profile> getFriendsToBD(Profile profile) throws PersistenceException {
 
+        ArrayList<Profile> friends = new ArrayList<>();
+        
         String sql = "SELECT DISTINCT name, status \n"
                 + "FROM Profile p \n"
                 + "WHERE name IN (SELECT f.profile1 \n"
@@ -192,12 +179,14 @@ public class ProfileDB {
             pst.setString(2, profile.getName());
 
             ResultSet rst = pst.executeQuery();
-
+            
+            //Recorro o resultado e devolvo a lista de amigos
             while (rst.next()) {
                 String nameFriend = rst.getString(1);
                 String statusFriend = rst.getString(2);
+
                 Profile friend = new Profile(nameFriend, null, statusFriend);
-                profile.getFriends().add(friend);
+                friends.add(friend);
             }
 
             pst.close();
@@ -205,11 +194,13 @@ public class ProfileDB {
             throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
         }
 
-        return profile;
+        return friends;
     }
 
-    private static Profile getMessagesToBD(Profile profile) throws PersistenceException {
+    private static ArrayList<Message> getMessagesToBD(Profile profile) throws PersistenceException {
 
+        ArrayList<Message> messages = new ArrayList<>();
+        
         String sql = "SELECT id, `text`, `date`, isRead, source, destination\n"
                 + "   FROM Message\n"
                 + "   WHERE destination = ? \n"
@@ -219,7 +210,7 @@ public class ProfileDB {
             PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
 
             pst.setString(1, profile.getName());
-            
+
             ResultSet rst = pst.executeQuery();
 
             while (rst.next()) {
@@ -228,9 +219,9 @@ public class ProfileDB {
                 Date dateMessage = rst.getDate(3);
                 Boolean isReadMessage = rst.getBoolean(4);
                 Profile sourceProfileMessage = new Profile(rst.getString(5), null, null);
-                
+
                 Message message = new Message(idMessage, textMessage, dateMessage, isReadMessage, profile, sourceProfileMessage);
-                profile.getMessages().add(message);
+                messages.add(message);
             }
 
             pst.close();
@@ -238,12 +229,37 @@ public class ProfileDB {
             throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
         }
 
-        return profile;
+        return messages;
     }
 
-    private static Profile getFriendRequestToBD(Profile profile) throws PersistenceException {
+    private static ArrayList<Profile> getFriendsRequestToBD(Profile profile) throws PersistenceException {
 
-        return null;
+        ArrayList<Profile> friendsRequests = new ArrayList<>();
+        
+        String sql = "SELECT sourceProfile\n"
+                + "FROM FriendRequest fr\n"
+                + "WHERE fr.destinationProfile = ? ;";
+
+        try {
+            PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
+
+            pst.setString(1, profile.getName());
+
+            ResultSet rst = pst.executeQuery();
+
+            while (rst.next()) {
+                String nameProfile = rst.getString(1);
+
+                Profile friendRequest = new Profile(nameProfile, null, null);
+                friendsRequests.add(friendRequest);
+            }
+
+            pst.close();
+        } catch (SQLException e) {
+            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
+        }
+
+        return friendsRequests;
     }
 
     /**
