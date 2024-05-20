@@ -65,7 +65,7 @@ public class ProfileDB {
                 + "post.id, post.`date`, post.`text`, post.profile, post.author, "
                 + "comment.id as comment_id, comment.`date`, comment.`text`, comment.author, comment.idPost  "
                 + "FROM Profile profile "
-                + "LEFT JOIN Post post ON post.author = profile.name "
+                + "LEFT JOIN Post post ON post.profile = profile.name "
                 + "LEFT JOIN Comment comment ON comment.idPost = post.id   "
                 + sqlWhere
                 + "ORDER BY profile.name, post.`date` DESC , comment.`date` DESC";
@@ -122,7 +122,7 @@ public class ProfileDB {
                 int idPost = rs.getInt(13);
 
                 if (textComment != null) {
-                    Comment comment = new Comment(idComment, dateComment, textComment, new Profile(nameAuthorComment, null, null), new Post(idPost, null, null, null, null));
+                    Comment comment = new Comment(idComment, dateComment, textComment, profile, new Post(idPost, null, null, null, null));
                     comments.add(comment);
                 }
             }
@@ -130,11 +130,11 @@ public class ProfileDB {
             // Enlazar posts y comments con el usuario
             for (Post post : posts) {
 
-                if (profile.getName().equals(post.getProfile().getName())) {
+                if (profile.equals(post.getProfile())) {
                     profile.getPosts().add(post);
 
                     for (Comment comment : comments) {
-                        if (comment.getPost().getId() == post.getId()) {
+                        if (comment.getPost().equals(post)) {
                             post.getComments().add(comment);
                         }
                     }
