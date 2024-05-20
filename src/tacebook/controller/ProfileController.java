@@ -60,10 +60,11 @@ public class ProfileController {
 
     /**
      * Constructor da clase.
+     *
      * @param textMode indica se a interfaz está en modo texto ou non.
      */
     public ProfileController(boolean textMode) {
-        this.profileView = textMode ? new TextProfileView(this) : new GUIProfileView(null,true,this);
+        this.profileView = textMode ? new TextProfileView(this) : new GUIProfileView(null, true, this);
     }
 
     /**
@@ -148,7 +149,7 @@ public class ProfileController {
     public void newComment(Post post, String commentText) {
         // Obtener la fecha actual en milisegundos
         long currentTime = System.currentTimeMillis();
-        
+
         Comment comment = new Comment(0, new Date(currentTime), commentText, sessionProfile, post);
 
         try {
@@ -167,11 +168,15 @@ public class ProfileController {
      */
     public void newLike(Post post) {
 
-        if (sessionProfile != post.getAuthor() && !post.getProfileLikes().contains(sessionProfile)) {
-            try {
-                PostDB.saveLike(post, sessionProfile);
-            } catch (PersistenceException ex) {
-                proccessPersistenceException(ex);
+        if (!sessionProfile.equals(post.getAuthor())) {
+            if (!post.getProfileLikes().contains(sessionProfile)) {
+                try {
+                    PostDB.saveLike(post, sessionProfile);
+                } catch (PersistenceException ex) {
+                    proccessPersistenceException(ex);
+                }
+            }else{
+                profileView.showAlreadyLikedPostMessage();
             }
         } else {
             profileView.showCannotLikeOwnPostMessage();
@@ -292,7 +297,7 @@ public class ProfileController {
      */
     public void markMessageAsRead(Message message) {
         message.setRead(true);
-        
+
         try {
             MessageDB.update(message);
         } catch (PersistenceException ex) {
