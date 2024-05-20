@@ -4,12 +4,15 @@
  */
 package tacebook.persistence;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import org.mariadb.jdbc.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tacebook.model.Profile;
@@ -24,10 +27,6 @@ public class TacebookDB {
     // Referencia á conexión coa BD
     private static Connection connection = null;
 
-    public final static String URL = "jdbc:mariadb://localhost:33006/tacebook";
-    public final static String USER = "admin";
-    public final static String PASSWORD = "daw2pass";
-
     /**
      * Obtén unha única conexión coa base de datos, abríndoa se é necesario
      *
@@ -35,15 +34,36 @@ public class TacebookDB {
      * @throws PersistenceException Se se produce un erro ao conectar coa BD
      */
     public static Connection getConnection() throws PersistenceException {
-        // Obtemos unha conexión coa base de datos
-        try {
-            if (connection == null) {
-                connection = (Connection) DriverManager.getConnection(URL, USER, PASSWORD);
+        String url, user, password;
+
+        InputStream input = TacebookDB.class.getClassLoader().getResourceAsStream("resources/db.properties");
+
+        if (input == null) {
+            System.out.println("Non se pode ler o ficheiro de propiedades");
+        } else {
+
+            try {
+                // Cargamos as propiedades do ficheiro
+                Properties prop = new Properties();
+                prop.load(input);
+                // Obtemos o valor das propiedades
+                url = prop.getProperty("url");
+                user = prop.getProperty("user");
+                password = prop.getProperty("password");
+
+                //pechamos o fluxo
+                input.close();
+
+                if (connection == null) {
+                    connection = (Connection) DriverManager.getConnection(url, user, password);
+                }
+
+            } catch (IOException | SQLException e) {
+                throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
             }
-            return connection;
-        } catch (SQLException e) {
-            throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
         }
+        
+        return connection;
     }
 
     /**
@@ -58,7 +78,7 @@ public class TacebookDB {
 
         String sql = "SELECT name, password, status FROM Profile;";
         Statement st = TacebookDB.getConnection().createStatement();
-        
+
         try {
             ResultSet rst = st.executeQuery(sql);
             while (rst.next()) {
