@@ -151,4 +151,22 @@ public class Message {
     public String toString() {
         return text;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+         //Si el objeto es de tipo Message
+        if (obj instanceof Message) {
+            Message message2 = (Message) obj;
+            //Devuelve true cuando tienen el mismo id
+            return this.id == message2.id;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 41 * hash + this.id;
+        return hash;
+    }
 }

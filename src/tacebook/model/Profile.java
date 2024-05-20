@@ -5,6 +5,7 @@
 package tacebook.model;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Representa un perfil.
@@ -167,5 +168,23 @@ public class Profile {
     @Override
     public String toString() {
         return name;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        //Si el objeto es de tipo Profile
+        if (obj instanceof Profile) {
+            Profile profile2 = (Profile) obj;
+            //Devuelve true cuando tienen el mismo nombre
+            return this.name.equals(profile2.name);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 17 * hash + Objects.hashCode(this.name);
+        return hash;
     }
 }

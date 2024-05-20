@@ -126,4 +126,29 @@ public class Comment {
         this.post = post;
     }
 
+    @Override
+    public String toString() {
+        return text;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+         //Si el objeto es de tipo Comment
+        if (obj instanceof Comment) {
+            Comment comment2 = (Comment) obj;
+            //Devuelve true cuando tienen el mismo id
+            return this.id == comment2.id;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 89 * hash + this.id;
+        return hash;
+    }
+    
+    
+
 }

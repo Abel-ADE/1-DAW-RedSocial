@@ -171,6 +171,24 @@ public class Post {
     public String toString() {
         return text;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        //Si el objeto es de tipo Post
+        if (obj instanceof Post) {
+            Post post2 = (Post) obj;
+            //Devuelve true cuando tienen el mismo id
+            return this.id == post2.id;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + this.id;
+        return hash;
+    }
     
     
 

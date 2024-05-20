@@ -122,7 +122,7 @@ public class ProfileController {
      * Método que crea unha publicación.
      *
      * @param text o texto da publicación.
-     * @param destProfile o perfil que fixo a publicación.
+     * @param destProfile o perfil de destino da publicación.
      */
     public void newPost(String text, Profile destProfile) {
         // Obtener la fecha actual en milisegundos
