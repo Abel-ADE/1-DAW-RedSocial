@@ -4,7 +4,6 @@
  */
 package tacebook.persistence;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import tacebook.model.Message;
@@ -21,16 +20,15 @@ public class MessageDB {
      * @throws tacebook.persistence.PersistenceException
      */
     public static void save(Message message) throws PersistenceException{
-        String sql = "INSERT INTO Message (`text`, `date`, isRead, source, destination) VALUES(?, ?, ?, ?, ?);";
+        String sql = "INSERT INTO Message (`text`,`date`, isRead, source, destination) VALUES(?, CURRENT_TIMESTAMP(), ?, ?, ?);";
         
         try {
             PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
             
             pst.setString(1, message.getText());
-            pst.setDate(2, (Date) message.getDate());
-            pst.setBoolean(3, message.isRead());
-            pst.setString(4, message.getSourceProfile().getName());
-            pst.setString(5, message.getDestProfile().getName());
+            pst.setBoolean(2, message.isRead());
+            pst.setString(3, message.getSourceProfile().getName());
+            pst.setString(4, message.getDestProfile().getName());
 
             pst.executeUpdate();
             pst.close();
@@ -45,17 +43,16 @@ public class MessageDB {
      * @throws tacebook.persistence.PersistenceException
      */
     public static void update(Message message) throws PersistenceException{
-         String sql = "UPDATE Message SET `text`=?, `date`=?, isRead=?, source=?, destination=? WHERE id=?;";
+         String sql = "UPDATE Message SET `text`=?, isRead=?, source=?, destination=? WHERE id=?;";
         
         try {
             PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
             
             pst.setString(1, message.getText());
-            pst.setDate(2, (Date) message.getDate());
-            pst.setBoolean(3, message.isRead());
-            pst.setString(4, message.getSourceProfile().getName());
-            pst.setString(5, message.getDestProfile().getName());
-            pst.setInt(6, message.getId());
+            pst.setBoolean(2, message.isRead());
+            pst.setString(3, message.getSourceProfile().getName());
+            pst.setString(4, message.getDestProfile().getName());
+            pst.setInt(5, message.getId());
 
             pst.executeUpdate();
             pst.close();

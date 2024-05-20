@@ -4,6 +4,8 @@
  */
 package tacebook.persistence;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
@@ -57,18 +59,26 @@ public class ProfileDB {
         return getProfile(name, password, numberOfPosts);
     }
 
+    private static String getPasswordHash(String password) throws NoSuchAlgorithmException {
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        messageDigest.update(password.getBytes());
+        return new String(messageDigest.digest());
+    }
+
     private static Profile getProfile(String name, String password, int numberOfPosts) throws PersistenceException {
 
         String sqlWhere = password != null ? "WHERE name = ? AND password = ? " : "WHERE name = ?";
 
-        String sql = "SELECT profile.name, profile.password, profile.status, "
-                + "post.id, post.`date`, post.`text`, post.profile, post.author, "
-                + "comment.id as comment_id, comment.`date`, comment.`text`, comment.author, comment.idPost  "
-                + "FROM Profile profile "
-                + "LEFT JOIN Post post ON post.profile = profile.name "
-                + "LEFT JOIN Comment comment ON comment.idPost = post.id   "
+        String sql = "SELECT profile.name, profile.password, profile.status, \n"
+                + "post.id, post.`date`, post.`text`, post.profile, post.author, \n"
+                + "comment.id as comment_id, comment.`date`, comment.`text`, comment.author, comment.idPost,\n"
+                + "plp.idPost, plp.profile \n"
+                + "FROM Profile profile \n"
+                + "LEFT JOIN Post post ON post.profile = profile.name \n"
+                + "LEFT JOIN Comment comment ON comment.idPost = post.id \n"
+                + "LEFT JOIN ProfileLikesPost plp ON plp.idPost = post.id \n"
                 + sqlWhere
-                + "ORDER BY profile.name, post.`date` DESC , comment.`date` DESC";
+                + "ORDER BY profile.name, post.`date` DESC , comment.`date` DESC ";
 
         Profile profile = null;
 
@@ -78,7 +88,11 @@ public class ProfileDB {
 
             pst.setString(1, name);
             if (password != null) {
-                pst.setString(2, password);
+                try {
+                    pst.setString(2, getPasswordHash(password));
+                } catch (NoSuchAlgorithmException ex) {
+                    throw new PersistenceException(PersistenceException.CONECTION_ERROR, ex.getMessage());
+                }
             }
 
             ResultSet rs = pst.executeQuery();
@@ -109,7 +123,19 @@ public class ProfileDB {
                     Post post = new Post(idPost, datePost, textPost, new Profile(nameProfile, null, null), new Profile(nameAuthorPost, null, null));
                     posts.add(post);
                 }
+            }
 
+            //Enlazar likes con publicacion
+            rs.beforeFirst(); // Reiniciar el cursor del ResultSet
+            while (rs.next()) {
+                int idPost = rs.getInt(14);
+                String nameProfile = rs.getString(15);
+
+                for (Post post : posts) {
+                    if (post.getId() == idPost) {
+                        post.getProfileLikes().add(new Profile(nameProfile, null, null));
+                    }
+                }
             }
 
             // Construir objetos Comentario
@@ -148,16 +174,19 @@ public class ProfileDB {
             throw new PersistenceException(PersistenceException.CONECTION_ERROR, e.getMessage());
         }
 
-        //Añadimos a lista de amigos dese usuario
-        ArrayList<Profile> friends = getFriendsToBD(profile);
-        profile.setFriends(friends);
+        if (profile != null) {
+            //Añadimos a lista de amigos dese usuario
+            ArrayList<Profile> friends = getFriendsToBD(profile);
+            profile.setFriends(friends);
 
-        ArrayList<Message> messages = getMessagesToBD(profile);
-        profile.setMessages(messages);
+            ArrayList<Message> messages = getMessagesToBD(profile);
+            profile.setMessages(messages);
 
-        //Añadimos a lista de peticions de amizade dese usuario
-        ArrayList<Profile> friendsRequests = getFriendsRequestToBD(profile);
-        profile.setFriendshipRequests(friendsRequests);
+            //Añadimos a lista de peticions de amizade dese usuario
+            ArrayList<Profile> friendsRequests = getFriendsRequestToBD(profile);
+            profile.setFriendshipRequests(friendsRequests);
+
+        }
 
         return profile;
     }
@@ -188,8 +217,10 @@ public class ProfileDB {
                 String nameFriend = rst.getString(1);
                 String statusFriend = rst.getString(2);
 
-                Profile friend = new Profile(nameFriend, null, statusFriend);
-                friends.add(friend);
+                if (nameFriend != null) {
+                    Profile friend = new Profile(nameFriend, null, statusFriend);
+                    friends.add(friend);
+                }
             }
 
             pst.close();
@@ -223,8 +254,10 @@ public class ProfileDB {
                 Boolean isReadMessage = rst.getBoolean(4);
                 Profile sourceProfileMessage = new Profile(rst.getString(5), null, null);
 
-                Message message = new Message(idMessage, textMessage, dateMessage, isReadMessage, profile, sourceProfileMessage);
-                messages.add(message);
+                if (textMessage != null) {
+                    Message message = new Message(idMessage, textMessage, dateMessage, isReadMessage, profile, sourceProfileMessage);
+                    messages.add(message);
+                }
             }
 
             pst.close();
@@ -253,8 +286,10 @@ public class ProfileDB {
             while (rst.next()) {
                 String nameProfile = rst.getString(1);
 
-                Profile friendRequest = new Profile(nameProfile, null, null);
-                friendsRequests.add(friendRequest);
+                if (nameProfile != null) {
+                    Profile friendRequest = new Profile(nameProfile, null, null);
+                    friendsRequests.add(friendRequest);
+                }
             }
 
             pst.close();
@@ -279,7 +314,11 @@ public class ProfileDB {
             PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
 
             pst.setString(1, profile.getName());
-            pst.setString(2, profile.getPassword());
+            try {
+                pst.setString(2, getPasswordHash(profile.getPassword()));
+            } catch (NoSuchAlgorithmException ex) {
+                throw new PersistenceException(PersistenceException.CONECTION_ERROR, ex.getMessage());
+            }
             pst.setString(3, profile.getStatus());
 
             pst.executeUpdate();
@@ -301,7 +340,11 @@ public class ProfileDB {
         try {
             PreparedStatement pst = TacebookDB.getConnection().prepareStatement(sql);
 
-            pst.setString(1, profile.getPassword());
+            try {
+                pst.setString(1, getPasswordHash(profile.getPassword()));
+            } catch (NoSuchAlgorithmException ex) {
+                throw new PersistenceException(PersistenceException.CONECTION_ERROR, ex.getMessage());
+            }
             pst.setString(2, profile.getStatus());
             pst.setString(3, profile.getName());
 

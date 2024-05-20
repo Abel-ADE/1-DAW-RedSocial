@@ -108,7 +108,7 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
                 }
             }
         });
-        
+
         //Cada vez que se fai doble click nun amigo entramos no seu perfil
         jTableFriends.addMouseListener(new MouseAdapter() {
             @Override
@@ -588,17 +588,18 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
     }//GEN-LAST:event_jButtonCloseSesionActionPerformed
 
     private void jButtonSendMessageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSendMessageActionPerformed
-        String message = JOptionPane.showInputDialog("Introduce o texto da mensaxe:");
 
-        if (message != null) {
-            int row = jTableFriends.getSelectedRow();
+        int row = jTableFriends.getSelectedRow();
 
-            if (row != -1) {
+        if (row != -1) {
+            String message = JOptionPane.showInputDialog("Introduce o texto da mensaxe:");
+            if (message != null) {
+
                 Profile destProfile = (Profile) jTableFriends.getValueAt(row, 0);
                 profileController.newMessage(destProfile, message);
-            } else {
-                JOptionPane.showMessageDialog(this, "Debes seleccionar unha mensaxe", "Atención", JOptionPane.WARNING_MESSAGE);
             }
+        } else {
+            JOptionPane.showMessageDialog(this, "Debes seleccionar un amig@", "Atención", JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_jButtonSendMessageActionPerformed
 
@@ -630,7 +631,7 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
 
             switch (option) {
                 case 1:
-                    jButtonDeleteMessageActionPerformed(null);
+                    profileController.deleteMessage(message);
                     break;
                 case 2:
                     String messageSend = JOptionPane.showInputDialog("Introduce o texto da mensaxe:");
@@ -733,7 +734,7 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
         // Mostro cando non coinciden os perfis
         jButtonSendMessageFooter.setVisible(!equalsProfile);
         jButtonBackBiography.setVisible(!equalsProfile);
-        
+
         //Mostro cando coinciden os perfis
         jButtonChangeStatus.setVisible(equalsProfile);
         jPanelSurBiografia.setVisible(equalsProfile);
@@ -792,7 +793,7 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
         ArrayList<Message> messages = profile.getMessages();
         DefaultTableModel modelMessages = (DefaultTableModel) jTableMessages.getModel();
         modelMessages.setRowCount(0);
-        
+
         boolean notReadMessages = false;
 
         for (Message message : messages) {
@@ -804,11 +805,9 @@ public class GUIProfileView extends javax.swing.JDialog implements ProfileView {
                 message
             });
         }
-        
+
         //Poño en negrita se hay mensaxes sen leer
         jTabbedPane1.getComponentAt(2).setFont(new Font("Liberation Sans", Font.BOLD, 15));
-       
-        
 
         //Fago a tabla visible
         setVisible(true);
