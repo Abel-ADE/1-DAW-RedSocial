@@ -1,4 +1,4 @@
-# Red Social en Java - Simulación de Facebook
+# Red Social en Java - 1º DAW
 
 Implementado con POO, siguiendo el patrón MVC, con persistencia de datos en base de datos relacional (SQL).
 
